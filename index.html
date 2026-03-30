@@ -8,49 +8,69 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Poppins', sans-serif; background-color: #fdf2f8; color: #000; overflow-x: hidden; }
+        html { scroll-behavior: smooth; }
+        body { font-family: 'Poppins', sans-serif; background-color: #fdf2f8; color: #000; overflow-x: hidden; max-width: 100vw; }
         
         /* Neo-Brutalist Tokens */
         .main-border { border: 3px solid #000; }
         .solid-shadow { box-shadow: 4px 4px 0px 0px rgba(0,0,0,1); }
         .solid-shadow-sm { box-shadow: 2px 2px 0px 0px rgba(0,0,0,1); }
+        .hover-lift { transition: all 0.2s ease; cursor: pointer; }
         .hover-lift:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px 0px rgba(0,0,0,1); }
+        .hover-lift:active { transform: translate(2px, 2px); box-shadow: 0px 0px 0px 0px rgba(0,0,0,1); }
         
         /* Layout Grids */
         @media (min-width: 768px) {
-            .schedule-grid { display: grid; grid-template-columns: 90px repeat(7, 1fr); gap: 0.75rem; }
+            .schedule-grid { display: grid; grid-template-columns: 90px repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem; }
         }
         @media (max-width: 767px) {
             .schedule-grid { display: block; }
-            .mobile-day { margin-bottom: 3rem; position: relative; }
+            .mobile-day { margin-bottom: 2.5rem; position: relative; }
             .mobile-day-title { 
                 background: #000; color: #fff; padding: 0.75rem; border-radius: 1rem; 
                 margin-bottom: 1rem; font-weight: 900; text-align: center; text-transform: uppercase; letter-spacing: 0.1em; 
-                position: sticky; top: 10px; z-index: 20; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid #333;
+                border: 2px solid #333; position: relative;
             }
             .mobile-row { display: flex; gap: 0.75rem; margin-bottom: 1rem; align-items: stretch; }
-            .time-col { flex: 0 0 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; text-align: center; background: #fce7f3; border-radius: 0.75rem; border: 2px solid #000; padding: 0.5rem; line-height: 1.3; box-shadow: 2px 2px 0px 0px rgba(0,0,0,1); word-break: break-word; }
-            .card-col { flex: 1; display: flex; flex-direction: column; gap: 0.75rem; overflow: hidden; }
+            .time-col { flex: 0 0 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 800; text-align: center; background: #fce7f3; border-radius: 0.75rem; border: 2px solid #000; padding: 0.5rem; line-height: 1.3; box-shadow: 2px 2px 0px 0px rgba(0,0,0,1); word-break: break-word; }
+            .card-col { flex: 1; display: flex; flex-direction: column; gap: 0.75rem; overflow: hidden; min-w: 0; }
         }
+
+        /* Top Square Buttons */
+        .sq-btn { 
+            width: 4.5rem; height: 4.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            gap: 0.25rem; border-radius: 1rem; font-weight: 900; font-size: 0.65rem; text-transform: uppercase; 
+            border: 2px solid #000; box-shadow: 2px 2px 0px 0px rgba(0,0,0,1); transition: all 0.2s; 
+        }
+        @media (min-width: 768px) { .sq-btn { width: 5.5rem; height: 5.5rem; font-size: 0.75rem; border-radius: 1.25rem; } }
+
+        /* Fixed Side Nav */
+        .fixed-nav { position: fixed; right: 0.5rem; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 0.75rem; z-index: 40; }
+        @media (min-width: 768px) { .fixed-nav { right: 1rem; gap: 1rem; } }
+        .nav-btn { width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 2px solid #000; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; box-shadow: 2px 2px 0px 0px rgba(0,0,0,1); background: white; transition: all 0.2s; cursor: pointer; }
+        .nav-btn:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0px 0px rgba(0,0,0,1); }
+        @media (min-width: 768px) { .nav-btn { width: 3rem; height: 3rem; font-size: 1.5rem; } }
 
         /* Elements */
         .event-card { min-height: 100px; border-radius: 1rem; border: 2px solid #000; display: flex; flex-direction: column; justify-content: space-between; padding: 0.75rem 0.5rem; position: relative; overflow: hidden; }
         .tuition-card { border: 2px solid #000; border-radius: 0.75rem; padding: 0.5rem; text-align: center; display: flex; flex-direction: column; justify-content: center; min-height: 80px; }
         .love-time-card { background: repeating-linear-gradient(45deg, #fbcfe8, #fbcfe8 10px, #fce7f3 10px, #fce7f3 20px); border: 2px solid #e11d48; color: #9f1239; }
 
-        /* Modal */
+        /* Modal & Scrollbar */
         #db-modal { backdrop-filter: blur(5px); }
         .tab-btn.active { background-color: #000; color: #fff; }
         
-        /* Scrollbar */
         ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; border: 1px solid #000; }
         ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
         
-        /* Hidden Scrollbar for mobile swiping */
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Filter Styles */
+        .filter-pill { opacity: 0.5; filter: grayscale(100%); transition: all 0.2s; }
+        .filter-pill.active { opacity: 1; filter: grayscale(0%); transform: scale(1.05); border-color: #000; font-weight: 900; }
 
         @media print {
             .no-print { display: none !important; }
@@ -61,34 +81,42 @@
 </head>
 <body class="p-2 md:p-8">
 
-    <!-- Top Controls -->
-    <div class="max-w-[1600px] mx-auto mb-6 flex flex-wrap gap-3 no-print justify-center md:justify-end items-center">
-        <div id="sync-status" class="text-xs font-bold px-3 py-1 rounded-full bg-yellow-100 border-2 border-yellow-400 text-yellow-800 flex items-center gap-2">
-            <span class="animate-pulse">●</span> Loading...
+    <!-- Fixed Navigation Icons -->
+    <div class="fixed-nav no-print">
+        <div onclick="document.getElementById('capture-area').scrollIntoView()" class="nav-btn" title="Main Routine">📅</div>
+        <div onclick="document.getElementById('upcoming-exams-list').scrollIntoView({block: 'center'})" class="nav-btn bg-amber-100 border-amber-600 text-amber-900" title="Exams">📝</div>
+        <div onclick="document.getElementById('upcoming-personal-list').scrollIntoView({block: 'center'})" class="nav-btn bg-indigo-100 border-indigo-600 text-indigo-900" title="Personal Events">📌</div>
+        <div onclick="document.getElementById('bus-fleet-section').scrollIntoView({block: 'start'})" class="nav-btn bg-emerald-100 border-emerald-600 text-emerald-900" title="Bus Fleet">🚌</div>
+    </div>
+
+    <!-- Top Controls (Compact Squares) -->
+    <div class="max-w-[1600px] mx-auto mb-6 flex flex-wrap justify-center gap-3 md:gap-5 no-print px-2 mt-4 relative z-10">
+        <div id="sync-status" class="absolute -top-6 w-full text-center text-xs font-bold text-slate-500 flex justify-center items-center gap-1">
+            <span class="animate-pulse text-yellow-500">●</span> Loading Database...
         </div>
         
-        <button onclick="window.manualSyncToGoogleSheet()" class="bg-blue-500 text-white border-2 border-black px-5 py-2.5 rounded-xl text-sm font-bold solid-shadow hover-lift transition-all flex items-center gap-2">
-            <span>📤</span> Save to Sheet
+        <button onclick="window.manualSyncToGoogleSheet()" class="sq-btn bg-blue-400 text-white hover-lift leading-tight">
+            <span class="text-2xl md:text-3xl">📤</span><span>Save</span>
         </button>
-        <button onclick="window.importFromGoogleSheet()" class="bg-purple-500 text-white border-2 border-black px-5 py-2.5 rounded-xl text-sm font-bold solid-shadow hover-lift transition-all flex items-center gap-2">
-            <span>📥</span> Import from Sheet
+        <button onclick="window.importFromGoogleSheet()" class="sq-btn bg-purple-400 text-white hover-lift leading-tight">
+            <span class="text-2xl md:text-3xl">📥</span><span>Load</span>
         </button>
-        <button onclick="window.openDatabase()" class="bg-black text-white border-2 border-black px-5 py-2.5 rounded-xl text-sm font-bold solid-shadow hover-lift transition-all flex items-center gap-2">
-            <span>🛠️</span> Edit Master Database
+        <button onclick="window.openDatabase()" class="sq-btn bg-black text-white hover-lift leading-tight">
+            <span class="text-2xl md:text-3xl">🛠️</span><span>Edit</span>
         </button>
-        <button onclick="window.exportToSheet()" class="bg-emerald-500 text-white border-2 border-black px-5 py-2.5 rounded-xl text-sm font-bold solid-shadow hover-lift transition-all flex items-center gap-2">
-            <span>📊</span> Export CSV
+        <button onclick="window.exportToSheet()" class="sq-btn bg-emerald-400 text-white hover-lift leading-tight">
+            <span class="text-2xl md:text-3xl">📊</span><span>Export</span>
         </button>
-        <button onclick="window.print()" class="bg-white text-black border-2 border-black px-5 py-2.5 rounded-xl text-sm font-bold solid-shadow hover-lift transition-all">
-            🖨️ Print
+        <button onclick="window.print()" class="sq-btn bg-white text-black hover-lift leading-tight">
+            <span class="text-2xl md:text-3xl">🖨️</span><span>Print</span>
         </button>
     </div>
 
     <!-- Main Canvas -->
-    <div id="capture-area" class="max-w-[1600px] mx-auto p-4 md:p-10 bg-white main-border rounded-[2rem] md:rounded-[3rem] solid-shadow mb-10">
+    <div id="capture-area" class="max-w-[1600px] mx-auto p-4 md:p-8 bg-white main-border rounded-[2rem] md:rounded-[3rem] solid-shadow mb-12 relative z-10">
         
         <!-- Header & Grand Filter -->
-        <div class="mb-10 text-center flex flex-col items-center">
+        <div class="mb-8 text-center flex flex-col items-center">
             
             <div class="bg-rose-100 text-rose-900 border-2 border-black p-1.5 md:p-2 rounded-3xl md:rounded-full font-black text-xs md:text-sm mb-5 solid-shadow-sm uppercase tracking-widest flex flex-wrap justify-center items-center gap-2 cursor-pointer transition-all" onclick="window.clearGlobalFilter(event)" title="Click to clear filters">
                 <span id="filter-hha" class="text-blue-600 hover:bg-blue-200 px-4 py-1.5 rounded-full transition-all text-center" onclick="window.setGlobalFilter('Hha', event)">Hha (17th)</span> 
@@ -107,22 +135,28 @@
         </div>
 
         <!-- Notification Banner for Week Start -->
-        <div class="mb-4 bg-slate-100 border-2 border-black text-slate-900 p-4 rounded-xl font-bold flex flex-col md:flex-row justify-between items-center text-sm uppercase tracking-wider solid-shadow-sm gap-4">
+        <div class="mb-4 bg-slate-50 border-2 border-black text-slate-900 p-3 md:p-4 rounded-xl font-bold flex flex-col md:flex-row justify-between items-center text-xs md:text-sm uppercase tracking-wider solid-shadow-sm gap-4">
             <div class="flex items-center gap-2 flex-wrap justify-center">
                 <span>📅</span> Viewing Week Of: 
                 <input type="date" id="display-week-start" onchange="window.updateWeekStart(this.value)" class="text-rose-600 bg-white px-2 py-1 rounded border-2 border-black cursor-pointer hover:bg-rose-50 transition-colors" title="Click to open calendar and jump to any week">
             </div>
-            <div class="text-[10px] opacity-70 text-center md:text-right">Exams and Events falling in this week are shown below.</div>
+            <div class="text-[9px] md:text-[10px] opacity-70 text-center md:text-right">Exams/Events for this week sync below.</div>
         </div>
 
         <!-- PL Banner -->
-        <div id="pl-banner" class="hidden mb-8 bg-purple-100 border-2 border-purple-500 text-purple-900 p-4 rounded-xl font-bold flex flex-col md:flex-row justify-center items-center text-sm uppercase tracking-wider solid-shadow-sm gap-2 text-center">
+        <div id="pl-banner" class="hidden mb-6 bg-purple-100 border-2 border-purple-500 text-purple-900 p-3 rounded-xl font-bold flex justify-center items-center text-xs uppercase tracking-wider solid-shadow-sm text-center">
             <span>🏖️ Preparatory Leave (PL) Active! Regular classes are hidden.</span>
         </div>
 
-        <!-- Legend -->
-        <div class="mb-10 bg-slate-50 p-6 rounded-[2rem] border-2 border-slate-200 border-dashed">
-            <div id="legend-container" class="flex flex-wrap justify-center gap-4">
+        <!-- Dynamic Day Filters -->
+        <div class="mb-4 flex flex-wrap justify-center gap-2" id="day-filter-container">
+            <!-- Injected by JS -->
+        </div>
+
+        <!-- Legend (Course Filters) -->
+        <div class="mb-10 bg-slate-50 p-4 md:p-6 rounded-[2rem] border-2 border-slate-200 border-dashed">
+            <p class="text-[9px] uppercase font-black text-center text-slate-400 mb-3 tracking-widest">Click to filter by specific class/event</p>
+            <div id="legend-container" class="flex flex-wrap justify-center gap-2 md:gap-4">
                 <!-- Generated dynamically -->
             </div>
         </div>
@@ -135,42 +169,42 @@
     </div>
 
     <!-- UPCOMING VIEWS (Exams & Events) -->
-    <div class="max-w-[1600px] mx-auto bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] main-border solid-shadow mb-10 no-print">
-        <h2 class="text-3xl font-black uppercase mb-8 border-b-4 border-black pb-2 flex items-center gap-3">
+    <div class="max-w-[1600px] mx-auto bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] main-border solid-shadow mb-12 relative z-10 no-print">
+        <h2 class="text-2xl md:text-3xl font-black uppercase mb-6 border-b-4 border-black pb-2 flex items-center gap-3">
             <span>🚀</span> Upcoming Radar
         </h2>
         
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10">
             <!-- Upcoming Exams -->
             <div>
-                <h3 class="text-xl font-black uppercase mb-6 text-amber-600 bg-amber-50 inline-block px-4 py-1 rounded-lg border-2 border-amber-200">⚠️ Exams</h3>
+                <h3 class="text-lg md:text-xl font-black uppercase mb-4 text-amber-600 bg-amber-50 inline-block px-4 py-1 rounded-lg border-2 border-amber-200">⚠️ Exams</h3>
                 <div id="upcoming-exams-list" class="space-y-4"></div>
             </div>
             
             <!-- Personal Events -->
             <div>
-                <h3 class="text-xl font-black uppercase mb-6 text-indigo-600 bg-indigo-50 inline-block px-4 py-1 rounded-lg border-2 border-indigo-200">📌 Personal Events</h3>
+                <h3 class="text-lg md:text-xl font-black uppercase mb-4 text-indigo-600 bg-indigo-50 inline-block px-4 py-1 rounded-lg border-2 border-indigo-200">📌 Personal Events</h3>
                 <div id="upcoming-personal-list" class="space-y-4"></div>
             </div>
         </div>
     </div>
 
     <!-- BUS FLEET DIRECTORY -->
-    <div class="max-w-[1600px] mx-auto bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] main-border solid-shadow mb-20 no-print">
-        <h2 class="text-3xl font-black uppercase mb-8 border-b-4 border-black pb-2 flex items-center gap-3">
+    <div id="bus-fleet-section" class="max-w-[1600px] mx-auto bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] main-border solid-shadow mb-20 relative z-10 no-print">
+        <h2 class="text-2xl md:text-3xl font-black uppercase mb-6 border-b-4 border-black pb-2 flex items-center gap-3">
             <span>🚌</span> Bus Fleet Directory
         </h2>
         
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10">
             <!-- Up Trips -->
             <div>
-                <h3 class="text-xl font-black uppercase mb-6 text-emerald-600 bg-emerald-50 inline-block px-4 py-1 rounded-lg border-2 border-emerald-200">🔼 Up (To Campus)</h3>
+                <h3 class="text-lg md:text-xl font-black uppercase mb-4 text-emerald-600 bg-emerald-50 inline-block px-4 py-1 rounded-lg border-2 border-emerald-200">🔼 Up (To Campus)</h3>
                 <div id="bus-up-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
             </div>
             
             <!-- Down Trips -->
             <div>
-                <h3 class="text-xl font-black uppercase mb-6 text-rose-600 bg-rose-50 inline-block px-4 py-1 rounded-lg border-2 border-rose-200">🔽 Down (From Campus)</h3>
+                <h3 class="text-lg md:text-xl font-black uppercase mb-4 text-rose-600 bg-rose-50 inline-block px-4 py-1 rounded-lg border-2 border-rose-200">🔽 Down (From Campus)</h3>
                 <div id="bus-down-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
             </div>
         </div>
@@ -178,15 +212,15 @@
 
     <!-- DATABASE MODAL -->
     <div id="db-modal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-2 md:p-6 no-print">
-        <div class="bg-white w-full max-w-6xl h-[95vh] rounded-[2rem] border-4 border-black solid-shadow flex flex-col overflow-hidden relative">
+        <div class="bg-white w-full max-w-7xl h-[95vh] rounded-[2rem] border-4 border-black solid-shadow flex flex-col overflow-hidden relative">
             
             <!-- Modal Header -->
             <div class="bg-black text-white p-4 md:p-6 flex justify-between items-center flex-shrink-0">
                 <div>
-                    <h2 class="text-2xl font-black uppercase tracking-wider flex items-center gap-2"><span>💾</span> Master Database</h2>
-                    <p class="text-xs text-rose-300 font-bold mt-1">Real-time edits automatically sync to the cloud & local storage.</p>
+                    <h2 class="text-xl md:text-2xl font-black uppercase tracking-wider flex items-center gap-2"><span>💾</span> Master Database</h2>
+                    <p class="text-[10px] md:text-xs text-rose-300 font-bold mt-1">Real-time edits save instantly.</p>
                 </div>
-                <button onclick="window.closeDatabase()" class="text-white hover:text-rose-400 font-bold text-3xl leading-none">&times;</button>
+                <button onclick="window.closeDatabase()" class="text-white hover:text-rose-400 font-bold text-4xl leading-none">&times;</button>
             </div>
 
             <!-- Modal Body -->
@@ -220,35 +254,17 @@
 
         // Core Timings & Data Structures
         const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        
         const standardTimes = ["8:00-9:20", "9:30-10:50", "11:00-12:20", "12:30-1:50", "2:00-3:20", "3:30-4:50"];
         
-        const timeBlocks = [
-            { label: "Arrival Bus", value: "Arrival Bus", special: "bus_up" }
-        ];
+        const timeBlocks = [{ label: "Arrival Bus", value: "Arrival Bus", special: "bus_up" }];
         standardTimes.forEach(t => timeBlocks.push({ label: t, value: t, special: false }));
         timeBlocks.push({ label: "Love Time", value: "Love Time", special: "love" });
         timeBlocks.push({ label: "Return Bus", value: "Return Bus", special: "bus_down" });
         timeBlocks.push({ label: "Custom Timings", value: "Custom Timings", special: "custom" }); 
 
-        const hhaColors = [
-            { hex: "#dbeafe", name: "Light Blue" }, { hex: "#bfdbfe", name: "Blue" },
-            { hex: "#bae6fd", name: "Sky" }, { hex: "#e0f2fe", name: "Pale Sky" }, { hex: "#ccfbf1", name: "Teal" }
-        ];
-        const ppitaColors = [
-            { hex: "#fce7f3", name: "Light Pink" }, { hex: "#fbcfe8", name: "Pink" },
-            { hex: "#fecdd3", name: "Rose" }, { hex: "#ffe4e6", name: "Pale Rose" }, { hex: "#fae8ff", name: "Fuchsia" }
-        ];
-        
-        const pastelTuitionColors = [
-            { hex: "#fef08a", name: "Pastel Yellow" },
-            { hex: "#bbf7d0", name: "Pastel Mint" },
-            { hex: "#fed7aa", name: "Pastel Peach" },
-            { hex: "#e9d5ff", name: "Pastel Lavender" },
-            { hex: "#99f6e4", name: "Pastel Teal" },
-            { hex: "#d9f99d", name: "Pastel Lime" },
-            { hex: "#e5e7eb", name: "Pastel Silver" }
-        ];
+        const hhaColors = [{ hex: "#dbeafe", name: "Light Blue" }, { hex: "#bfdbfe", name: "Blue" }, { hex: "#bae6fd", name: "Sky" }, { hex: "#e0f2fe", name: "Pale Sky" }, { hex: "#ccfbf1", name: "Teal" }];
+        const ppitaColors = [{ hex: "#fce7f3", name: "Light Pink" }, { hex: "#fbcfe8", name: "Pink" }, { hex: "#fecdd3", name: "Rose" }, { hex: "#ffe4e6", name: "Pale Rose" }, { hex: "#fae8ff", name: "Fuchsia" }];
+        const pastelTuitionColors = [{ hex: "#fef08a", name: "Pastel Yellow" }, { hex: "#bbf7d0", name: "Pastel Mint" }, { hex: "#fed7aa", name: "Pastel Peach" }, { hex: "#e9d5ff", name: "Pastel Lavender" }, { hex: "#99f6e4", name: "Pastel Teal" }, { hex: "#d9f99d", name: "Pastel Lime" }, { hex: "#e5e7eb", name: "Pastel Silver" }];
 
         const personalCategories = [
             { id: "Chores", icon: "🧹", color: "bg-slate-200 border-slate-500 text-slate-800" },
@@ -261,6 +277,8 @@
 
         // Global State & Filters
         window.globalOwnerFilter = 'All'; // 'All', 'Hha', 'Ppita'
+        window.globalDayFilter = 'All'; 
+        window.globalCourseFilter = 'All';
 
         let appData = {
             courses: [], tuitions: [], buses: [],
@@ -273,7 +291,6 @@
         if (savedLocalData) {
             try {
                 appData = JSON.parse(savedLocalData);
-                // Ensure legacy items have owners fallback
                 appData.tuitions.forEach(t => { if(!t.owner) t.owner = 'Hha'; });
                 appData.buses.forEach(b => { if(!b.owner) b.owner = 'Both'; });
                 if(!appData.personalEvents) appData.personalEvents = [];
@@ -282,7 +299,6 @@
                 if(!appData.overrides.plEnd) appData.overrides.plEnd = "";
 
                 document.getElementById('sync-status').innerHTML = '<span class="text-blue-500">●</span> Loaded Locally';
-                document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-blue-50 border-2 border-blue-400 text-blue-800 flex items-center gap-2';
             } catch(e) { console.error("Local storage parse error", e); }
         } 
         else if(appData.courses.length === 0) {
@@ -290,9 +306,7 @@
                 { id: "102", code: "ECO102", name: "Macroeconomics", room: "302", owner: "Ppita", color: "#fce7f3", sessions: [{day: "Sunday", timeLabel: "2:00-3:20"}] },
                 { id: "302", code: "ECO302", name: "Econometrics", room: "301", owner: "Hha", color: "#dbeafe", sessions: [{day: "Sunday", timeLabel: "11:00-12:20"}] }
             ];
-            appData.tuitions = [
-                { id: "Rajonno", classLevel: "Class 8", area: "Mogbazar", owner: "Hha", color: "#fef08a", sessions: [{day: "Sunday", timeLabel: "8:00-9:20"}] }
-            ];
+            appData.tuitions = [{ id: "Rajonno", classLevel: "Class 8", area: "Mogbazar", owner: "Hha", color: "#fef08a", sessions: [{day: "Sunday", timeLabel: "8:00-9:20"}] }];
             appData.buses = [
                 { id: "b1", name: "Hemonto", number: "12", time: "07:30 AM", trip: "Up", stop: "Campus", owner: "Both" },
                 { id: "b3", name: "Hemonto", number: "12", time: "03:40 PM", trip: "Down", stop: "Campus", owner: "Both" }
@@ -315,16 +329,10 @@
 
             onAuthStateChanged(auth, (user) => {
                 if (user) { userId = user.uid; listenToData(); } 
-                else {
-                    document.getElementById('sync-status').innerText = 'Offline Mode';
-                    document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-red-100 border-2 border-red-400 text-red-800';
-                }
+                else { document.getElementById('sync-status').innerHTML = '<span class="text-red-500">●</span> Offline Mode'; }
             });
             initAuth();
-        } catch (e) {
-            console.warn("Firebase not loaded, using local memory.", e);
-            renderApp();
-        }
+        } catch (e) { console.warn("Firebase not loaded, using local memory.", e); renderApp(); }
 
         function listenToData() {
             if (!userId || !db) return;
@@ -342,9 +350,7 @@
                     if(!appData.overrides.plEnd) appData.overrides.plEnd = "";
                     
                     localStorage.setItem('hhaPpitaUltimateData', JSON.stringify(appData));
-                    
                     document.getElementById('sync-status').innerHTML = '<span class="text-emerald-500">●</span> Cloud Synced';
-                    document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 border-2 border-emerald-400 text-emerald-800 flex items-center gap-2';
                 } else { saveDataToCloud(); }
                 
                 renderApp();
@@ -354,7 +360,6 @@
 
         async function saveDataToCloud() {
             localStorage.setItem('hhaPpitaUltimateData', JSON.stringify(appData));
-            
             if (!userId || !db) return;
             try {
                 const docRef = doc(db, 'artifacts', appId, 'users', userId, 'ultimate_schedule', 'main');
@@ -363,37 +368,25 @@
         }
 
         window.manualSyncToGoogleSheet = () => {
-            if (!GOOGLE_SCRIPT_WEB_APP_URL) {
-                alert("Please ensure GOOGLE_SCRIPT_WEB_APP_URL is set in the code.");
-                return; 
-            }
+            if (!GOOGLE_SCRIPT_WEB_APP_URL) { alert("Please ensure GOOGLE_SCRIPT_WEB_APP_URL is set in the code."); return; }
             document.getElementById('sync-status').innerHTML = '<span class="text-blue-500 animate-spin">↻</span> Syncing to Sheet...';
-            document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-blue-50 border-2 border-blue-400 text-blue-800 flex items-center gap-2';
             
             fetch(GOOGLE_SCRIPT_WEB_APP_URL, {
                 method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify({ timestamp: new Date().toISOString(), data: appData })
             }).then(() => {
-                setTimeout(() => {
-                    document.getElementById('sync-status').innerHTML = '<span class="text-emerald-500">●</span> Sheet Synced';
-                    document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 border-2 border-emerald-400 text-emerald-800 flex items-center gap-2';
-                }, 1000);
+                setTimeout(() => { document.getElementById('sync-status').innerHTML = '<span class="text-emerald-500">●</span> Sheet Synced'; }, 1000);
             }).catch(e => {
                 console.log("Webhook sync failed", e);
                 document.getElementById('sync-status').innerHTML = '<span class="text-red-500">●</span> Sync Error';
-                document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-red-50 border-2 border-red-400 text-red-800 flex items-center gap-2';
             });
         };
 
         window.importFromGoogleSheet = () => {
-            if (!GOOGLE_SCRIPT_WEB_APP_URL) {
-                alert("Please ensure GOOGLE_SCRIPT_WEB_APP_URL is set in the code.");
-                return; 
-            }
+            if (!GOOGLE_SCRIPT_WEB_APP_URL) { alert("Please ensure GOOGLE_SCRIPT_WEB_APP_URL is set in the code."); return; }
             if (!confirm("Warning: Importing will overwrite your current schedule with the latest data from the Cloud Sheet. Continue?")) return;
 
             document.getElementById('sync-status').innerHTML = '<span class="text-purple-500 animate-spin">↻</span> Importing...';
-            document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-purple-50 border-2 border-purple-400 text-purple-800 flex items-center gap-2';
             
             fetch(GOOGLE_SCRIPT_WEB_APP_URL)
             .then(res => res.json())
@@ -403,22 +396,17 @@
                     saveDataToCloud(); 
                     renderApp();
                     if(document.getElementById('db-modal').classList.contains('hidden') === false) renderDbContent();
-                    
                     document.getElementById('sync-status').innerHTML = '<span class="text-emerald-500">●</span> Import Success';
-                    document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 border-2 border-emerald-400 text-emerald-800 flex items-center gap-2';
-                } else {
-                    throw new Error("Invalid data format received.");
-                }
+                } else throw new Error("Invalid data format received.");
             })
             .catch(e => {
                 console.log("Import failed", e);
                 document.getElementById('sync-status').innerHTML = '<span class="text-red-500">●</span> Import Error';
-                document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-red-50 border-2 border-red-400 text-red-800 flex items-center gap-2';
                 alert("Import failed. Make sure you updated the Google Apps Script to support doGet(). Check console for details.");
             });
         };
 
-        // --- Grand Filter Logic ---
+        // --- Filters Logic ---
         window.setGlobalFilter = (owner, event) => {
             event.stopPropagation();
             window.globalOwnerFilter = owner;
@@ -428,7 +416,18 @@
 
         window.clearGlobalFilter = (event) => {
             window.globalOwnerFilter = 'All';
+            window.globalCourseFilter = 'All'; // also clear specific course filter
             updateFilterUI();
+            renderApp();
+        };
+        
+        window.setDayFilter = (day) => {
+            window.globalDayFilter = window.globalDayFilter === day ? 'All' : day;
+            renderApp();
+        };
+
+        window.setCourseFilter = (courseId) => {
+            window.globalCourseFilter = window.globalCourseFilter === courseId ? 'All' : courseId;
             renderApp();
         };
 
@@ -456,16 +455,13 @@
             if (!match) return 0;
             let h = parseInt(match[1], 10);
             let m = parseInt(match[2], 10);
-            
             let lowerTime = timeStr.toLowerCase();
             let isPM = lowerTime.includes('pm');
             let isAM = lowerTime.includes('am');
             
             if (isPM && h !== 12) h += 12;
             if (isAM && h === 12) h = 0;
-            if (!isPM && !isAM) {
-                if (h >= 1 && h <= 7) h += 12;
-            }
+            if (!isPM && !isAM && h >= 1 && h <= 7) h += 12;
             return h * 60 + m;
         }
 
@@ -480,7 +476,6 @@
         function getDayTimeBounds(day, weekDates, ownerFilter) {
             let earliest = 9999;
             let latest = 0;
-            
             const checkAndSet = (timeLabel) => {
                 let times = timeLabel.split('-');
                 let startMins = parseTimeToMinutes(times[0]);
@@ -490,9 +485,9 @@
             };
 
             appData.courses.forEach(c => {
-                if (appData.overrides.cancelledIds.includes(c.id)) return;
-                if (isDateInPL(weekDates[day])) return; // PL overrides classes
+                if (appData.overrides.cancelledIds.includes(c.id) || isDateInPL(weekDates[day])) return;
                 if (ownerFilter !== 'All' && c.owner !== ownerFilter) return;
+                if (window.globalCourseFilter !== 'All' && c.id !== window.globalCourseFilter) return;
                 c.sessions.forEach(s => { if (s.day === day) checkAndSet(s.timeLabel); });
             });
 
@@ -534,10 +529,20 @@
                 else plBanner.classList.add('hidden');
             }
 
+            renderDayFilters();
             renderLegend(weekDates);
             renderGrid(weekDates);
             renderUpcomingView();
             renderBusDirectory();
+        }
+
+        function renderDayFilters() {
+            const container = document.getElementById('day-filter-container');
+            container.innerHTML = `<button onclick="window.setDayFilter('All')" class="filter-pill px-3 py-1 bg-white border-2 border-slate-300 rounded-full text-xs font-bold ${window.globalDayFilter === 'All' ? 'active' : ''}">All Days</button>`;
+            daysOfWeek.forEach(day => {
+                const short = day.substring(0,3);
+                container.innerHTML += `<button onclick="window.setDayFilter('${day}')" class="filter-pill px-3 py-1 bg-white border-2 border-slate-300 rounded-full text-xs font-bold ${window.globalDayFilter === day ? 'active' : ''}">${short}</button>`;
+            });
         }
 
         function renderLegend(weekDates) {
@@ -547,15 +552,16 @@
             const seenCourses = new Set();
             appData.courses.forEach(c => {
                 if (window.globalOwnerFilter !== 'All' && c.owner !== window.globalOwnerFilter) return;
-                if (seenCourses.has(c.code)) return;
-                seenCourses.add(c.code);
+                if (seenCourses.has(c.name)) return;
+                seenCourses.add(c.name);
                 
                 const icon = c.owner === 'Hha' ? '👨‍💻' : '🌸';
+                const isActive = window.globalCourseFilter === c.id;
                 container.innerHTML += `
-                    <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border-2 border-black solid-shadow-sm">
+                    <button onclick="window.setCourseFilter('${c.id}')" class="filter-pill ${isActive ? 'active' : ''} flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border-2 border-black solid-shadow-sm hover:scale-105 transition-transform">
                         <div class="w-4 h-4 rounded-full border border-black flex items-center justify-center text-[8px]" style="background-color:${c.color}">${icon}</div>
-                        <span class="text-[10px] font-black uppercase tracking-tight">${c.code} <span class="opacity-40">(${c.owner})</span></span>
-                    </div>`;
+                        <span class="text-[10px] font-black uppercase tracking-tight text-left leading-tight">${c.name} <span class="opacity-40">(${c.owner})</span></span>
+                    </button>`;
             });
             
             const seenTuitions = new Set();
@@ -565,11 +571,12 @@
                 seenTuitions.add(t.id);
                 
                 const icon = t.owner === 'Hha' ? '👨‍💻' : (t.owner === 'Ppita' ? '🌸' : '👥');
+                const isActive = window.globalCourseFilter === t.id;
                 container.innerHTML += `
-                    <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border-2 border-black solid-shadow-sm">
+                    <button onclick="window.setCourseFilter('${t.id}')" class="filter-pill ${isActive ? 'active' : ''} flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border-2 border-black solid-shadow-sm hover:scale-105 transition-transform">
                         <div class="w-4 h-4 rounded-md border border-black" style="background-color:${t.color}"></div>
-                        <span class="text-[10px] font-black uppercase tracking-tight">${t.id} <span class="opacity-40">(${icon})</span></span>
-                    </div>`;
+                        <span class="text-[10px] font-black uppercase tracking-tight text-left leading-tight">${t.id} <span class="opacity-40">(${icon})</span></span>
+                    </button>`;
             });
         }
 
@@ -583,25 +590,28 @@
             };
 
             appData.courses.forEach(c => {
-                if (appData.overrides.cancelledIds.includes(c.id)) return;
-                if (isDateInPL(weekDates[day])) return; // Skip classes during PL
+                if (appData.overrides.cancelledIds.includes(c.id) || isDateInPL(weekDates[day])) return;
                 if (window.globalOwnerFilter !== 'All' && c.owner !== window.globalOwnerFilter) return;
+                if (window.globalCourseFilter !== 'All' && c.id !== window.globalCourseFilter) return;
                 c.sessions.forEach(s => { if (s.day === day && timeMatches(s.timeLabel)) events.push({ type: 'course', data: c, customTime: isCustomSlot ? s.timeLabel : null }); });
             });
 
             appData.tuitions.forEach(t => {
                 if (appData.overrides.cancelledIds.includes(t.id)) return;
                 if (window.globalOwnerFilter !== 'All' && t.owner !== 'Both' && t.owner !== window.globalOwnerFilter) return;
+                if (window.globalCourseFilter !== 'All' && t.id !== window.globalCourseFilter) return;
                 t.sessions.forEach(s => { if (s.day === day && timeMatches(s.timeLabel)) events.push({ type: 'tuition', data: t, customTime: isCustomSlot ? s.timeLabel : null }); });
             });
 
             appData.overrides.extras.forEach(ex => {
                 if (window.globalOwnerFilter !== 'All' && ex.owner !== window.globalOwnerFilter) return;
+                if (window.globalCourseFilter !== 'All' && ex.courseId !== window.globalCourseFilter) return;
                 if (ex.day === day && timeMatches(ex.timeLabel)) events.push({ type: 'extra', data: ex, customTime: isCustomSlot ? ex.timeLabel : null });
             });
 
             appData.overrides.exams.forEach(ex => {
                 if (window.globalOwnerFilter !== 'All' && ex.owner !== window.globalOwnerFilter) return;
+                if (window.globalCourseFilter !== 'All' && ex.courseId !== window.globalCourseFilter) return;
                 if (ex.date === weekDates[day] && timeMatches(ex.timeLabel)) events.push({ type: 'exam', data: ex, customTime: isCustomSlot ? ex.timeLabel : null });
             });
 
@@ -621,11 +631,8 @@
             if (window.globalOwnerFilter === 'All') {
                 bounds.earliest = Math.min(boundsHha.earliest, boundsPpita.earliest);
                 bounds.latest = Math.max(boundsHha.latest, boundsPpita.latest);
-            } else if (window.globalOwnerFilter === 'Hha') {
-                bounds = boundsHha;
-            } else {
-                bounds = boundsPpita;
-            }
+            } else if (window.globalOwnerFilter === 'Hha') { bounds = boundsHha; } 
+            else { bounds = boundsPpita; }
 
             const getBusColorClass = (owner) => {
                 if (owner === 'Hha') return 'bg-blue-100 border-blue-300 text-blue-900';
@@ -651,7 +658,6 @@
             } else {
                 let validBuses = appData.buses.filter(b => b.trip === 'Down' && parseTimeToMinutes(b.time) >= bounds.latest && (b.owner === 'Both' || window.globalOwnerFilter === 'All' || b.owner === window.globalOwnerFilter));
                 
-                // Prioritize "Both" buses for down trips, then sort by time
                 validBuses.sort((a,b) => {
                     if (a.owner === 'Both' && b.owner !== 'Both') return -1;
                     if (b.owner === 'Both' && a.owner !== 'Both') return 1;
@@ -678,8 +684,8 @@
             let ppitaHasClass = false;
 
             appData.courses.forEach(c => {
-                if (appData.overrides.cancelledIds.includes(c.id)) return;
-                if (isDateInPL(weekDates[day])) return; // No classes in PL
+                if (appData.overrides.cancelledIds.includes(c.id) || isDateInPL(weekDates[day])) return;
+                if (window.globalCourseFilter !== 'All' && c.id !== window.globalCourseFilter) return;
                 c.sessions.forEach(s => {
                     if (s.day === day) {
                         if (c.owner === 'Hha') hhaHasClass = true;
@@ -688,15 +694,14 @@
                 });
             });
 
-            // Also check exams (exams happen even in PL)
             appData.overrides.exams.forEach(ex => {
                 if (ex.date === weekDates[day]) {
+                    if (window.globalCourseFilter !== 'All' && ex.courseId !== window.globalCourseFilter) return;
                     if (ex.owner === 'Hha') hhaHasClass = true;
                     if (ex.owner === 'Ppita') ppitaHasClass = true;
                 }
             });
             
-            // Only show love time if both have a valid class/exam on campus
             if (!hhaHasClass || !ppitaHasClass) return `<div class="h-full w-full bg-slate-50 rounded-xl opacity-30 border-2 border-dashed border-slate-200 min-h-[100px]"></div>`;
 
             let boundsHha = getDayTimeBounds(day, weekDates, 'Hha');
@@ -712,7 +717,6 @@
                 let overallLatest = Math.max(boundsHha.latest, boundsPpita.latest);
                 let validBuses = appData.buses.filter(b => b.trip === 'Down' && parseTimeToMinutes(b.time) >= overallLatest);
                 
-                // Prioritize "Both" buses for down trips, then sort by time
                 validBuses.sort((a,b) => {
                     if (a.owner === 'Both' && b.owner !== 'Both') return -1;
                     if (b.owner === 'Both' && a.owner !== 'Both') return 1;
@@ -737,9 +741,13 @@
             grid.innerHTML = '';
             const isMobile = window.innerWidth < 768;
 
+            let activeDays = window.globalDayFilter === 'All' ? daysOfWeek : [window.globalDayFilter];
+
             if (!isMobile) {
+                grid.style.gridTemplateColumns = `90px repeat(${activeDays.length}, minmax(120px, 1fr))`;
                 grid.appendChild(document.createElement('div')); 
-                daysOfWeek.forEach(d => {
+                
+                activeDays.forEach(d => {
                     const h = document.createElement('div');
                     h.className = "text-center flex flex-col items-center justify-center py-2";
                     h.innerHTML = `<span class="font-black text-sm uppercase text-slate-400 tracking-widest">${d.substring(0, 3)}</span><span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 rounded-full mt-1">${weekDates[d].substring(5)}</span>`;
@@ -752,9 +760,9 @@
                     sideLabel.innerHTML = block.label.replace('-', '<br>-<br>');
                     grid.appendChild(sideLabel);
 
-                    daysOfWeek.forEach(day => {
+                    activeDays.forEach(day => {
                         const cell = document.createElement('div');
-                        cell.className = "w-full h-full p-1";
+                        cell.className = "w-full h-full p-1 min-w-[120px]";
 
                         if (block.special === "bus_up" || block.special === "bus_down") {
                             cell.innerHTML = generateBusHtml(day, weekDates, false, block.label);
@@ -773,7 +781,7 @@
                     });
                 });
             } else {
-                daysOfWeek.forEach(day => {
+                activeDays.forEach(day => {
                     let hasEvents = false;
                     let dayHtml = `<div class="mobile-day"><div class="mobile-day-title">${day} <span class="text-xs opacity-70 ml-2">(${weekDates[day]})</span></div>`;
 
@@ -920,7 +928,6 @@
             
             let upBuses = validBuses.filter(b => b.trip === 'Up').sort((a,b) => parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time));
             
-            // Prioritize "Both" buses for down trips
             let downBuses = validBuses.filter(b => b.trip === 'Down').sort((a,b) => {
                 if (a.owner === 'Both' && b.owner !== 'Both') return -1;
                 if (b.owner === 'Both' && a.owner !== 'Both') return 1;
@@ -971,12 +978,12 @@
 
         function generateTimeDropdownHTML(idPrefix) {
             return `
-                <div class="flex flex-col gap-2">
-                    <select id="${idPrefix}-time" class="p-2 border-2 border-black rounded" onchange="window.handleTimeToggle('${idPrefix}-time', '${idPrefix}-time-custom')">
+                <div class="flex flex-col gap-2 min-w-[150px]">
+                    <select id="${idPrefix}-time" class="p-3 border-2 border-black rounded font-bold" onchange="window.handleTimeToggle('${idPrefix}-time', '${idPrefix}-time-custom')">
                         ${standardTimes.map(t => `<option value="${t}">${t}</option>`).join('')}
                         <option value="Custom">Custom...</option>
                     </select>
-                    <input id="${idPrefix}-time-custom" type="text" placeholder="Type custom time (e.g. 10:15-11:15)" class="p-2 border-2 border-rose-500 rounded hidden bg-rose-50 font-bold">
+                    <input id="${idPrefix}-time-custom" type="text" placeholder="Type custom time (e.g. 10:15-11:15)" class="p-3 border-2 border-rose-500 rounded hidden bg-rose-50 font-bold">
                 </div>
             `;
         }
@@ -989,7 +996,7 @@
 
         function renderDbContent() {
             const content = document.getElementById('db-content');
-            let html = `<div class="max-w-5xl mx-auto pb-20">`; 
+            let html = `<div class="max-w-6xl mx-auto pb-20">`; 
 
             if (activeTab === 'raw') {
                 html += `<div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 border-b-2 border-black pb-4 gap-4">
@@ -997,36 +1004,36 @@
                                 <h3 class="text-xl font-black uppercase text-purple-600">🛠️ Spreadsheet Editor</h3>
                                 <p class="text-xs font-bold text-slate-500 mt-1">Edit the database directly in table format. Changes are saved when you click 'Save Spreadsheet'.</p>
                             </div>
-                            <button onclick="window.saveSpreadsheetData()" class="bg-purple-600 text-white px-6 py-2.5 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest solid-shadow-sm whitespace-nowrap">Save Spreadsheet</button>
+                            <button onclick="window.saveSpreadsheetData()" class="bg-purple-600 text-white px-6 py-3 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest solid-shadow-sm whitespace-nowrap">Save Spreadsheet</button>
                          </div>`;
                 
                 // Global Overrides Section
-                html += `<div class="bg-purple-50 p-4 rounded-xl border-2 border-purple-300 mb-6 solid-shadow-sm grid grid-cols-1 md:grid-cols-2 gap-4">
+                html += `<div class="bg-purple-50 p-6 rounded-xl border-2 border-purple-300 mb-8 solid-shadow-sm grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
-                                <label class="text-[10px] font-black uppercase text-purple-800">Current Week Start Date</label>
-                                <input id="ss-week-start" type="date" value="${appData.overrides.currentWeekStart}" class="w-full p-2 border-2 border-black rounded font-bold mt-1">
+                                <label class="text-[10px] font-black uppercase text-purple-800 mb-1 block">Current Week Start Date</label>
+                                <input id="ss-week-start" type="date" value="${appData.overrides.currentWeekStart}" class="w-full p-3 border-2 border-black rounded font-bold">
                             </div>
                             <div>
-                                <label class="text-[10px] font-black uppercase text-purple-800">Cancelled Course IDs (Comma Separated)</label>
-                                <input id="ss-cancelled" type="text" value="${(appData.overrides.cancelledIds || []).join(', ')}" class="w-full p-2 border-2 border-black rounded font-bold mt-1" placeholder="e.g. 102, 304">
+                                <label class="text-[10px] font-black uppercase text-purple-800 mb-1 block">Cancelled Course IDs (Comma Separated)</label>
+                                <input id="ss-cancelled" type="text" value="${(appData.overrides.cancelledIds || []).join(', ')}" class="w-full p-3 border-2 border-black rounded font-bold" placeholder="e.g. 102, 304">
                             </div>
                             <div>
-                                <label class="text-[10px] font-black uppercase text-purple-800">PL Start Date</label>
-                                <input id="ss-pl-start" type="date" value="${appData.overrides.plStart || ''}" class="w-full p-2 border-2 border-black rounded font-bold mt-1">
+                                <label class="text-[10px] font-black uppercase text-purple-800 mb-1 block">PL Start Date</label>
+                                <input id="ss-pl-start" type="date" value="${appData.overrides.plStart || ''}" class="w-full p-3 border-2 border-black rounded font-bold">
                             </div>
                             <div>
-                                <label class="text-[10px] font-black uppercase text-purple-800">PL End Date</label>
-                                <input id="ss-pl-end" type="date" value="${appData.overrides.plEnd || ''}" class="w-full p-2 border-2 border-black rounded font-bold mt-1">
+                                <label class="text-[10px] font-black uppercase text-purple-800 mb-1 block">PL End Date</label>
+                                <input id="ss-pl-end" type="date" value="${appData.overrides.plEnd || ''}" class="w-full p-3 border-2 border-black rounded font-bold">
                             </div>
                          </div>`;
 
                 const generateSpreadsheet = (title, id, data, columns) => {
-                    let tableHtml = `<h4 class="font-black uppercase mb-2 mt-8 text-purple-800 flex items-center gap-2"><span>📋</span> ${title}</h4>`;
-                    tableHtml += `<div class="overflow-x-auto border-2 border-black rounded-xl solid-shadow-sm mb-2 bg-white max-h-[350px] overflow-y-auto relative">`;
-                    tableHtml += `<table class="w-full text-xs text-left whitespace-nowrap" id="sheet-${id}">`;
+                    let tableHtml = `<h4 class="font-black uppercase mb-4 mt-10 text-purple-800 flex items-center gap-2"><span>📋</span> ${title}</h4>`;
+                    tableHtml += `<div class="overflow-x-auto border-2 border-black rounded-xl solid-shadow-sm mb-4 bg-white max-h-[400px] overflow-y-auto relative">`;
+                    tableHtml += `<table class="w-full text-sm text-left whitespace-nowrap" id="sheet-${id}">`;
                     tableHtml += `<thead class="bg-purple-100 sticky top-0 z-10"><tr class="border-b-2 border-black">`;
-                    columns.forEach(col => { tableHtml += `<th class="p-2 border-r border-black font-black uppercase">${col.label}</th>`; });
-                    tableHtml += `<th class="p-2 font-black uppercase text-center w-10">Del</th>`;
+                    columns.forEach(col => { tableHtml += `<th class="p-3 border-r border-black font-black uppercase tracking-wider">${col.label}</th>`; });
+                    tableHtml += `<th class="p-3 font-black uppercase text-center w-12">Del</th>`;
                     tableHtml += `</tr></thead><tbody>`;
 
                     (data || []).forEach((row, rIndex) => {
@@ -1035,18 +1042,17 @@
                             let val = row[col.key] !== undefined ? row[col.key] : '';
                             if (typeof val === 'object') val = JSON.stringify(val);
                             val = String(val).replace(/"/g, '&quot;');
-                            tableHtml += `<td class="p-0 border-r border-slate-200"><input type="text" class="w-full p-2 bg-transparent outline-none focus:bg-purple-100" data-key="${col.key}" value="${val}"></td>`;
+                            tableHtml += `<td class="p-0 border-r border-slate-200"><input type="text" class="w-full p-3 min-w-[100px] bg-transparent outline-none focus:bg-purple-100" data-key="${col.key}" value="${val}"></td>`;
                         });
-                        tableHtml += `<td class="p-1 text-center"><button onclick="this.closest('tr').remove()" class="text-red-500 font-bold px-2 hover:bg-red-50 rounded" title="Delete Row">✖</button></td>`;
+                        tableHtml += `<td class="p-1 text-center"><button onclick="this.closest('tr').remove()" class="text-red-500 font-bold px-3 py-1 hover:bg-red-50 rounded" title="Delete Row">✖</button></td>`;
                         tableHtml += `</tr>`;
                     });
 
-                    // Empty row for new entries
                     tableHtml += `<tr class="bg-green-50 border-b-2 border-green-200" data-new="true">`;
                     columns.forEach(col => {
-                        tableHtml += `<td class="p-0 border-r border-green-200"><input type="text" class="w-full p-2 bg-transparent outline-none focus:bg-green-100 placeholder-green-800/30" placeholder="+ Add ${col.label}" data-key="${col.key}"></td>`;
+                        tableHtml += `<td class="p-0 border-r border-green-200"><input type="text" class="w-full p-3 min-w-[100px] bg-transparent outline-none focus:bg-green-100 placeholder-green-800/30" placeholder="+ Add ${col.label}" data-key="${col.key}"></td>`;
                     });
-                    tableHtml += `<td class="p-1 text-center text-[9px] font-black text-green-700 uppercase">New</td>`;
+                    tableHtml += `<td class="p-2 text-center text-[10px] font-black text-green-700 uppercase">New</td>`;
                     tableHtml += `</tr>`;
 
                     tableHtml += `</tbody></table></div>`;
@@ -1070,115 +1076,103 @@
             else if (activeTab === 'courses') {
                 html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2">University Courses</h3>`;
                 appData.courses.forEach((c, index) => {
-                    html += `<div class="bg-white p-4 rounded-xl border-2 border-black mb-4 flex justify-between items-center solid-shadow-sm hover-lift">
-                        <div class="flex items-center gap-4">
-                            <div class="w-8 h-8 rounded-full border-2 border-black" style="background-color:${c.color}"></div>
+                    html += `<div class="bg-white p-5 rounded-xl border-2 border-black mb-4 flex justify-between items-center solid-shadow-sm hover-lift">
+                        <div class="flex items-center gap-5">
+                            <div class="w-10 h-10 rounded-full border-2 border-black" style="background-color:${c.color}"></div>
                             <div>
-                                <div class="font-bold uppercase">${c.code}: ${c.name} <span class="text-xs bg-slate-200 px-2 py-0.5 rounded ml-2">${c.owner}</span></div>
-                                <div class="text-xs text-slate-500 mt-1">Room ${c.room} | ${c.sessions.map(s => s.day.substring(0,3) + ' ' + s.timeLabel).join(', ')}</div>
+                                <div class="font-black uppercase text-lg">${c.code}: ${c.name} <span class="text-xs bg-slate-200 px-2 py-0.5 rounded ml-2 align-middle">${c.owner}</span></div>
+                                <div class="text-sm font-bold text-slate-500 mt-1">Room ${c.room} | ${c.sessions.map(s => s.day.substring(0,3) + ' ' + s.timeLabel).join(', ')}</div>
                             </div>
                         </div>
-                        <button onclick="window.deleteItem('courses', ${index})" class="text-red-500 font-bold hover:bg-red-50 p-2 rounded">Delete</button>
+                        <button onclick="window.deleteItem('courses', ${index})" class="text-red-500 font-bold hover:bg-red-50 p-3 rounded">Delete</button>
                     </div>`;
                 });
                 
                 html += `
-                <div class="bg-slate-200 p-6 rounded-xl border-2 border-black border-dashed mt-8">
-                    <h4 class="font-bold uppercase mb-4">Add New Course</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input id="nc-code" type="text" placeholder="Course Code (e.g. ECO201)" class="p-2 border-2 border-black rounded font-bold">
-                        <input id="nc-name" type="text" placeholder="Course Name" class="p-2 border-2 border-black rounded">
-                        <input id="nc-room" type="text" placeholder="Room No." class="p-2 border-2 border-black rounded">
-                        <select id="nc-owner" class="p-2 border-2 border-black rounded font-bold">
-                            <option value="Hha">Hha</option><option value="Ppita">Ppita</option>
-                        </select>
-                        <select id="nc-color" class="p-2 border-2 border-black rounded">
-                            ${hhaColors.map(c => `<option value="${c.hex}">Hha - ${c.name}</option>`).join('')}
-                            ${ppitaColors.map(c => `<option value="${c.hex}">Ppita - ${c.name}</option>`).join('')}
-                        </select>
-                        <select id="nc-day" class="p-2 border-2 border-black rounded">
-                            ${daysOfWeek.map(d => `<option value="${d}">${d}</option>`).join('')}
-                        </select>
-                        ${generateTimeDropdownHTML('nc')}
+                <div class="bg-slate-200 p-8 rounded-2xl border-2 border-black border-dashed mt-10">
+                    <h4 class="font-black uppercase mb-6 text-lg">Add New Course</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-slate-600">Course Code</label><input id="nc-code" type="text" placeholder="e.g. ECO201" class="p-3 border-2 border-black rounded font-bold"></div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-slate-600">Course Name</label><input id="nc-name" type="text" placeholder="e.g. Macroeconomics" class="p-3 border-2 border-black rounded font-bold"></div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-slate-600">Room Number</label><input id="nc-room" type="text" placeholder="Room No." class="p-3 border-2 border-black rounded font-bold"></div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-slate-600">Owner</label><select id="nc-owner" class="p-3 border-2 border-black rounded font-bold"><option value="Hha">Hha</option><option value="Ppita">Ppita</option></select></div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-slate-600">Color</label>
+                            <select id="nc-color" class="p-3 border-2 border-black rounded font-bold">
+                                ${hhaColors.map(c => `<option value="${c.hex}">Hha - ${c.name}</option>`).join('')}
+                                ${ppitaColors.map(c => `<option value="${c.hex}">Ppita - ${c.name}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-slate-600">Day</label><select id="nc-day" class="p-3 border-2 border-black rounded font-bold">${daysOfWeek.map(d => `<option value="${d}">${d}</option>`).join('')}</select></div>
+                        <div class="flex flex-col gap-1 col-span-1 md:col-span-2"><label class="text-[10px] font-black uppercase text-slate-600">Time</label>${generateTimeDropdownHTML('nc')}</div>
                     </div>
-                    <button onclick="window.addCourse()" class="mt-6 w-full bg-black text-white px-4 py-3 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest">Add Course</button>
+                    <button onclick="window.addCourse()" class="mt-8 w-full bg-black text-white px-4 py-4 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest text-lg">Add Course</button>
                 </div>`;
             } 
             else if (activeTab === 'tuitions') {
                 html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2">Tuitions</h3>`;
                 appData.tuitions.forEach((t, index) => {
-                    html += `<div class="bg-white p-4 rounded-xl border-2 border-black mb-4 flex justify-between items-center solid-shadow-sm hover-lift">
-                        <div class="flex items-center gap-4">
-                            <div class="w-8 h-8 rounded-md border-2 border-black" style="background-color:${t.color}"></div>
+                    html += `<div class="bg-white p-5 rounded-xl border-2 border-black mb-4 flex justify-between items-center solid-shadow-sm hover-lift">
+                        <div class="flex items-center gap-5">
+                            <div class="w-10 h-10 rounded-md border-2 border-black" style="background-color:${t.color}"></div>
                             <div>
-                                <div class="font-bold uppercase">${t.id} <span class="text-xs bg-slate-200 px-2 py-0.5 rounded ml-2">${t.classLevel}</span> <span class="text-[10px] uppercase font-black opacity-50 ml-2">(${t.owner})</span></div>
-                                <div class="text-xs text-slate-500 mt-1">${t.area} | ${t.sessions.map(s => s.day.substring(0,3) + ' ' + s.timeLabel).join(', ')}</div>
+                                <div class="font-black uppercase text-lg">${t.id} <span class="text-xs bg-slate-200 px-2 py-0.5 rounded ml-2 align-middle">${t.classLevel}</span> <span class="text-[10px] uppercase font-black opacity-50 ml-2">(${t.owner})</span></div>
+                                <div class="text-sm font-bold text-slate-500 mt-1">${t.area} | ${t.sessions.map(s => s.day.substring(0,3) + ' ' + s.timeLabel).join(', ')}</div>
                             </div>
                         </div>
-                        <button onclick="window.deleteItem('tuitions', ${index})" class="text-red-500 font-bold hover:bg-red-50 p-2 rounded">Delete</button>
+                        <button onclick="window.deleteItem('tuitions', ${index})" class="text-red-500 font-bold hover:bg-red-50 p-3 rounded">Delete</button>
                     </div>`;
                 });
                 
                 html += `
-                <div class="bg-slate-200 p-6 rounded-xl border-2 border-black border-dashed mt-8">
-                    <h4 class="font-bold uppercase mb-4">Add New Tuition</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input id="nt-name" type="text" placeholder="Student Name" class="p-2 border-2 border-black rounded font-bold">
-                        <input id="nt-class" type="text" placeholder="Class / Level" class="p-2 border-2 border-black rounded">
-                        <input id="nt-area" type="text" placeholder="Area" class="p-2 border-2 border-black rounded">
-                        <select id="nt-owner" class="p-2 border-2 border-black rounded font-bold">
-                            <option value="Hha">Hha</option><option value="Ppita">Ppita</option><option value="Both">Both</option>
-                        </select>
-                        <select id="nt-color" class="p-2 border-2 border-black rounded font-bold">
-                            ${pastelTuitionColors.map(c => `<option value="${c.hex}">${c.name}</option>`).join('')}
-                        </select>
-                        <select id="nt-day" class="p-2 border-2 border-black rounded">
-                            ${daysOfWeek.map(d => `<option value="${d}">${d}</option>`).join('')}
-                        </select>
-                        ${generateTimeDropdownHTML('nt')}
+                <div class="bg-slate-200 p-8 rounded-2xl border-2 border-black border-dashed mt-10">
+                    <h4 class="font-black uppercase mb-6 text-lg">Add New Tuition</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-slate-600">Student Name</label><input id="nt-name" type="text" placeholder="e.g. Rajonno" class="p-3 border-2 border-black rounded font-bold"></div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-slate-600">Class / Level</label><input id="nt-class" type="text" placeholder="e.g. Class 8" class="p-3 border-2 border-black rounded font-bold"></div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-slate-600">Area</label><input id="nt-area" type="text" placeholder="e.g. Mogbazar" class="p-3 border-2 border-black rounded font-bold"></div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-slate-600">Owner</label><select id="nt-owner" class="p-3 border-2 border-black rounded font-bold"><option value="Hha">Hha</option><option value="Ppita">Ppita</option><option value="Both">Both</option></select></div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-slate-600">Color</label><select id="nt-color" class="p-3 border-2 border-black rounded font-bold">${pastelTuitionColors.map(c => `<option value="${c.hex}">${c.name}</option>`).join('')}</select></div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-slate-600">Day</label><select id="nt-day" class="p-3 border-2 border-black rounded font-bold">${daysOfWeek.map(d => `<option value="${d}">${d}</option>`).join('')}</select></div>
+                        <div class="flex flex-col gap-1 col-span-1 md:col-span-2"><label class="text-[10px] font-black uppercase text-slate-600">Time</label>${generateTimeDropdownHTML('nt')}</div>
                     </div>
-                    <button onclick="window.addTuition()" class="mt-6 w-full bg-black text-white px-4 py-3 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest">Add Tuition</button>
+                    <button onclick="window.addTuition()" class="mt-8 w-full bg-black text-white px-4 py-4 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest text-lg">Add Tuition</button>
                 </div>`;
             }
             else if (activeTab === 'buses') {
                 html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2">Bus Fleet</h3>`;
                 appData.buses.forEach((b, index) => {
-                    html += `<div class="bg-white p-4 rounded-xl border-2 border-black mb-4 flex justify-between items-center solid-shadow-sm hover-lift">
+                    html += `<div class="bg-white p-5 rounded-xl border-2 border-black mb-4 flex justify-between items-center solid-shadow-sm hover-lift">
                         <div>
-                            <div class="font-bold uppercase">${b.name} (${b.number}) <span class="text-xs ${b.trip==='Up'?'bg-emerald-100 text-emerald-800':'bg-rose-100 text-rose-800'} border border-black px-2 py-0.5 rounded ml-2">${b.trip}</span> <span class="text-[10px] uppercase font-black opacity-50 ml-2">(${b.owner})</span></div>
-                            <div class="text-xs text-slate-500 mt-1">Time: ${b.time} | Stop: ${b.stop}</div>
+                            <div class="font-black uppercase text-lg">${b.name} (${b.number}) <span class="text-xs ${b.trip==='Up'?'bg-emerald-100 text-emerald-800':'bg-rose-100 text-rose-800'} border border-black px-2 py-0.5 rounded ml-2 align-middle">${b.trip}</span> <span class="text-[10px] uppercase font-black opacity-50 ml-2">(${b.owner})</span></div>
+                            <div class="text-sm font-bold text-slate-500 mt-1">Time: ${b.time} | Stop: ${b.stop}</div>
                         </div>
-                        <button onclick="window.deleteItem('buses', ${index})" class="text-red-500 font-bold hover:bg-red-50 p-2 rounded">Delete</button>
+                        <button onclick="window.deleteItem('buses', ${index})" class="text-red-500 font-bold hover:bg-red-50 p-3 rounded">Delete</button>
                     </div>`;
                 });
                 
                 html += `
-                <div class="bg-slate-200 p-6 rounded-xl border-2 border-black border-dashed mt-8">
-                    <h4 class="font-bold uppercase mb-4">Add New Bus</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input id="nb-name" type="text" placeholder="Bus Name (e.g. Hemonto)" class="p-2 border-2 border-black rounded font-bold">
-                        <input id="nb-number" type="text" placeholder="Bus Number" class="p-2 border-2 border-black rounded">
-                        ${generateTimeDropdownHTML('nb')}
-                        <input id="nb-stop" type="text" placeholder="Bus Stop" class="p-2 border-2 border-black rounded">
-                        <select id="nb-trip" class="p-2 border-2 border-black rounded">
-                            <option value="Up">Up (To Campus)</option><option value="Down">Down (From Campus)</option>
-                        </select>
-                        <select id="nb-owner" class="p-2 border-2 border-black rounded font-bold">
-                            <option value="Both">Both (Shared)</option><option value="Hha">Hha Only</option><option value="Ppita">Ppita Only</option>
-                        </select>
+                <div class="bg-slate-200 p-8 rounded-2xl border-2 border-black border-dashed mt-10">
+                    <h4 class="font-black uppercase mb-6 text-lg">Add New Bus</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-slate-600">Bus Name</label><input id="nb-name" type="text" placeholder="e.g. Hemonto" class="p-3 border-2 border-black rounded font-bold"></div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-slate-600">Bus Number</label><input id="nb-number" type="text" placeholder="Bus Number" class="p-3 border-2 border-black rounded font-bold"></div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-slate-600">Time</label>${generateTimeDropdownHTML('nb')}</div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-slate-600">Bus Stop</label><input id="nb-stop" type="text" placeholder="e.g. Campus" class="p-3 border-2 border-black rounded font-bold"></div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-slate-600">Trip Direction</label><select id="nb-trip" class="p-3 border-2 border-black rounded font-bold"><option value="Up">Up (To Campus)</option><option value="Down">Down (From Campus)</option></select></div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-slate-600">Owner</label><select id="nb-owner" class="p-3 border-2 border-black rounded font-bold"><option value="Both">Both (Shared)</option><option value="Hha">Hha Only</option><option value="Ppita">Ppita Only</option></select></div>
                     </div>
-                    <button onclick="window.addBus()" class="mt-6 w-full bg-black text-white px-4 py-3 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest">Add Bus</button>
+                    <button onclick="window.addBus()" class="mt-8 w-full bg-black text-white px-4 py-4 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest text-lg">Add Bus</button>
                 </div>`;
             }
             else if (activeTab === 'weekly') {
                 html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2 text-rose-600">This Week's Edits</h3>
-                <div class="mb-8 bg-rose-50 p-4 rounded-xl border-2 border-rose-200 solid-shadow-sm flex items-center justify-between">
+                <div class="mb-8 bg-rose-50 p-6 rounded-2xl border-2 border-rose-200 solid-shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <label class="font-black text-sm uppercase tracking-wider text-rose-900">Current Week Start Date:</label>
-                    <input type="date" value="${appData.overrides.currentWeekStart}" class="p-2 border-2 border-black rounded font-bold" onchange="window.updateWeekStart(this.value)">
+                    <input type="date" value="${appData.overrides.currentWeekStart}" class="p-3 border-2 border-black rounded font-bold w-full md:w-auto" onchange="window.updateWeekStart(this.value)">
                 </div>
                 
-                <div class="mb-8"><h4 class="font-black uppercase mb-4 bg-black text-white px-4 py-1 inline-block rounded">1. Cancel Classes</h4>
-                <div class="flex flex-wrap gap-3">`;
+                <div class="mb-10"><h4 class="font-black uppercase mb-4 bg-black text-white px-4 py-2 inline-block rounded text-lg">1. Cancel Classes</h4>
+                <div class="flex flex-wrap gap-3 mt-4">`;
                 
                 const seenCancel = new Set();
                 appData.courses.forEach(c => {
@@ -1186,14 +1180,14 @@
                     seenCancel.add(c.code);
                     
                     const isCancelled = appData.courses.filter(cx => cx.code === c.code).some(cx => appData.overrides.cancelledIds.includes(cx.id));
-                    html += `<button onclick="window.toggleCancel('${c.code}')" class="px-4 py-2 text-sm font-black border-2 border-black rounded-lg solid-shadow-sm hover-lift ${isCancelled ? 'bg-red-500 text-white' : 'bg-white text-black'}">${c.code} ${isCancelled ? '❌' : '✅'}</button>`;
+                    html += `<button onclick="window.toggleCancel('${c.code}')" class="px-5 py-3 text-sm font-black border-2 border-black rounded-lg solid-shadow-sm hover-lift ${isCancelled ? 'bg-red-500 text-white' : 'bg-white text-black'}">${c.code} ${isCancelled ? '❌' : '✅'}</button>`;
                 });
                 
                 html += `</div></div>
-                <div class="mb-8 border-t-2 border-black pt-8"><h4 class="font-black uppercase mb-4 bg-emerald-600 text-white px-4 py-1 inline-block rounded">2. Extra Classes</h4>
-                    <div class="space-y-2 mb-6">`;
+                <div class="mb-10 border-t-2 border-black pt-10"><h4 class="font-black uppercase mb-6 bg-emerald-600 text-white px-4 py-2 inline-block rounded text-lg">2. Extra Classes</h4>
+                    <div class="space-y-3 mb-8">`;
                     appData.overrides.extras.forEach((ex, idx) => {
-                        html += `<div class="flex justify-between bg-emerald-50 border-2 border-emerald-200 p-2 rounded-lg"><span class="font-bold text-sm">➕ ${ex.courseCode} - ${ex.day} ${ex.timeLabel}</span><button onclick="window.deleteOverride('extras', ${idx})" class="text-red-500 font-bold hover:bg-red-50 px-2 rounded">&times; Remove</button></div>`;
+                        html += `<div class="flex justify-between items-center bg-emerald-50 border-2 border-emerald-200 p-4 rounded-xl solid-shadow-sm hover-lift"><span class="font-bold text-lg">➕ ${ex.courseCode} - ${ex.day} ${ex.timeLabel}</span><button onclick="window.deleteOverride('extras', ${idx})" class="text-red-500 font-bold bg-white px-3 py-1 rounded border border-red-200">&times; Remove</button></div>`;
                     });
                 
                 let uniqueCoursesOptions = '';
@@ -1206,41 +1200,41 @@
                 });
 
                 html += `</div>
-                    <div class="bg-emerald-50 p-6 rounded-xl border-2 border-emerald-600 border-dashed">
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <select id="nxt-course" class="p-2 border-2 border-black rounded font-bold">${uniqueCoursesOptions}</select>
-                            <select id="nxt-day" class="p-2 border-2 border-black rounded">${daysOfWeek.map(d => `<option value="${d}">${d}</option>`).join('')}</select>
-                            ${generateTimeDropdownHTML('nxt')}
+                    <div class="bg-emerald-50 p-8 rounded-2xl border-2 border-emerald-600 border-dashed">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-emerald-800">Course</label><select id="nxt-course" class="p-3 border-2 border-black rounded font-bold">${uniqueCoursesOptions}</select></div>
+                            <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-emerald-800">Day</label><select id="nxt-day" class="p-3 border-2 border-black rounded font-bold">${daysOfWeek.map(d => `<option value="${d}">${d}</option>`).join('')}</select></div>
+                            <div class="flex flex-col gap-1 col-span-1 md:col-span-2"><label class="text-[10px] font-black uppercase text-emerald-800">Time</label>${generateTimeDropdownHTML('nxt')}</div>
                         </div>
-                        <button onclick="window.addExtraClass()" class="mt-4 w-full bg-emerald-500 text-white px-4 py-3 rounded-xl border-2 border-black font-black hover-lift">Add Extra Class</button>
+                        <button onclick="window.addExtraClass()" class="mt-8 w-full bg-emerald-500 text-white px-4 py-4 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest text-lg">Add Extra Class</button>
                     </div></div>`;
             }
             else if (activeTab === 'exams') {
                 html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2 text-amber-600">Exams & Preparatory Leave (PL)</h3>`;
                 
                 // PL Section
-                html += `<div class="bg-purple-100 p-6 rounded-xl border-2 border-purple-400 mb-8 solid-shadow-sm">
-                    <h4 class="font-black uppercase mb-4 text-purple-900">🏖️ Preparatory Leave (PL) Period</h4>
-                    <p class="text-xs font-bold text-purple-700 mb-4">Set a PL period to automatically hide all regular classes during these dates. Exams and buses will still appear.</p>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
-                        <div>
+                html += `<div class="bg-purple-100 p-8 rounded-2xl border-2 border-purple-400 mb-10 solid-shadow-sm">
+                    <h4 class="font-black uppercase mb-4 text-purple-900 text-lg">🏖️ Preparatory Leave (PL) Period</h4>
+                    <p class="text-sm font-bold text-purple-700 mb-6">Set a PL period to automatically hide all regular classes during these dates. Exams and buses will still appear.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-end">
+                        <div class="flex flex-col gap-1">
                             <label class="text-[10px] font-black uppercase text-purple-800">Start Date</label>
-                            <input id="pl-start-date" type="date" value="${appData.overrides.plStart}" class="w-full p-2 border-2 border-purple-400 rounded font-bold mt-1 bg-white">
+                            <input id="pl-start-date" type="date" value="${appData.overrides.plStart}" class="w-full p-3 border-2 border-purple-400 rounded font-bold bg-white">
                         </div>
-                        <div>
+                        <div class="flex flex-col gap-1">
                             <label class="text-[10px] font-black uppercase text-purple-800">End Date</label>
-                            <input id="pl-end-date" type="date" value="${appData.overrides.plEnd}" class="w-full p-2 border-2 border-purple-400 rounded font-bold mt-1 bg-white">
+                            <input id="pl-end-date" type="date" value="${appData.overrides.plEnd}" class="w-full p-3 border-2 border-purple-400 rounded font-bold bg-white">
                         </div>
                     </div>
-                    <div class="flex gap-4 mt-4">
-                        <button onclick="window.setPLPeriod()" class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest">Set PL</button>
-                        <button onclick="window.clearPLPeriod()" class="bg-white text-red-600 px-4 py-2 rounded-xl border-2 border-red-400 font-black hover-lift uppercase tracking-widest">Clear PL</button>
+                    <div class="flex flex-col md:flex-row gap-4 mt-6">
+                        <button onclick="window.setPLPeriod()" class="flex-1 bg-purple-600 text-white px-4 py-3 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest text-sm">Save PL Period</button>
+                        <button onclick="window.clearPLPeriod()" class="bg-white text-red-600 px-4 py-3 rounded-xl border-2 border-red-400 font-black hover-lift uppercase tracking-widest text-sm">Clear PL</button>
                     </div>
                 </div>`;
 
-                html += `<div class="space-y-2 mb-8">`;
+                html += `<div class="space-y-4 mb-10">`;
                 appData.overrides.exams.forEach((ex, idx) => {
-                    html += `<div class="flex justify-between bg-amber-50 border-2 border-amber-200 p-3 rounded-lg solid-shadow-sm"><div><div class="font-black text-sm text-amber-900 uppercase">⚠️ ${ex.courseCode}: ${ex.examName}</div><div class="text-xs font-bold text-amber-700">${ex.date} | ${ex.timeLabel} (${ex.owner})</div></div><button onclick="window.deleteOverride('exams', ${idx})" class="text-red-500 font-bold hover:bg-red-50 px-2 rounded">Delete</button></div>`;
+                    html += `<div class="flex justify-between items-center bg-amber-50 border-2 border-amber-200 p-5 rounded-xl solid-shadow-sm hover-lift"><div><div class="font-black text-lg text-amber-900 uppercase">⚠️ ${ex.courseCode}: ${ex.examName}</div><div class="text-sm font-bold text-amber-700 mt-1">${ex.date} | ${ex.timeLabel} (${ex.owner})</div></div><button onclick="window.deleteOverride('exams', ${idx})" class="text-red-500 font-bold hover:bg-red-50 px-4 py-2 border border-red-200 rounded-lg bg-white">Delete</button></div>`;
                 });
 
                 let uniqueCoursesOptions = '';
@@ -1252,40 +1246,44 @@
                     }
                 });
 
-                html += `</div><div class="bg-amber-100 p-6 rounded-xl border-2 border-black border-dashed mt-6">
-                    <h4 class="font-bold uppercase mb-4 text-amber-900">Schedule New Exam</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input id="nx-name" type="text" placeholder="Exam Name (e.g. Midterm 1)" class="p-2 border-2 border-black rounded font-bold">
-                        <select id="nx-course" class="p-2 border-2 border-black rounded font-bold">${uniqueCoursesOptions}</select>
-                        <input id="nx-date" type="date" class="p-2 border-2 border-black rounded font-bold">
-                        ${generateTimeDropdownHTML('nx')}
+                html += `</div><div class="bg-amber-100 p-8 rounded-2xl border-2 border-black border-dashed mt-6">
+                    <h4 class="font-black uppercase mb-6 text-amber-900 text-lg">Schedule New Exam</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-amber-800">Exam Name</label><input id="nx-name" type="text" placeholder="e.g. Midterm 1" class="p-3 border-2 border-black rounded font-bold"></div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-amber-800">Course</label><select id="nx-course" class="p-3 border-2 border-black rounded font-bold">${uniqueCoursesOptions}</select></div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-amber-800">Date</label><input id="nx-date" type="date" class="p-3 border-2 border-black rounded font-bold"></div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-amber-800">Time</label>${generateTimeDropdownHTML('nx')}</div>
                     </div>
-                    <button onclick="window.addExam()" class="mt-6 w-full bg-amber-500 text-white px-4 py-3 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest">Schedule Exam</button>
+                    <button onclick="window.addExam()" class="mt-8 w-full bg-amber-500 text-white px-4 py-4 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest text-lg">Schedule Exam</button>
                 </div>`;
             }
             else if (activeTab === 'personal') {
-                html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2 text-indigo-600">Personal Scheduler (Date Based)</h3><div class="space-y-2 mb-8">`;
+                html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2 text-indigo-600">Personal Scheduler (Date Based)</h3><div class="space-y-4 mb-10">`;
                 appData.personalEvents.forEach((pe, idx) => {
-                    html += `<div class="flex justify-between bg-indigo-50 border-2 border-indigo-200 p-3 rounded-lg solid-shadow-sm"><div><div class="font-black text-sm text-indigo-900 uppercase">📌 ${pe.planner} <span class="text-[10px] uppercase font-black opacity-50 ml-1">(${pe.owner})</span></div><div class="text-xs font-bold text-indigo-700">${pe.date} | ${pe.timeLabel} (${pe.category})</div></div><button onclick="window.deleteOverride('personalEvents', ${idx})" class="text-red-500 font-bold hover:bg-red-50 px-2 rounded">Delete</button></div>`;
+                    html += `<div class="flex justify-between items-center bg-indigo-50 border-2 border-indigo-200 p-5 rounded-xl solid-shadow-sm hover-lift"><div><div class="font-black text-lg text-indigo-900 uppercase">📌 ${pe.planner} <span class="text-xs uppercase font-black opacity-50 ml-2 align-middle">(${pe.owner})</span></div><div class="text-sm font-bold text-indigo-700 mt-1">${pe.date} | ${pe.timeLabel} (${pe.category})</div></div><button onclick="window.deleteOverride('personalEvents', ${idx})" class="text-red-500 font-bold hover:bg-red-50 px-4 py-2 border border-red-200 rounded-lg bg-white">Delete</button></div>`;
                 });
-                html += `</div><div class="bg-indigo-100 p-6 rounded-xl border-2 border-black border-dashed mt-6">
-                    <h4 class="font-bold uppercase mb-4 text-indigo-900">Add New Personal Event</h4>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input id="np-date" type="date" class="p-2 border-2 border-black rounded font-bold">
-                        ${generateTimeDropdownHTML('np')}
-                        <select id="np-category" class="p-2 border-2 border-black rounded">
-                            ${personalCategories.map(c => `<option value="${c.id}">${c.icon} ${c.id}</option>`).join('')}
-                        </select>
-                        <select id="np-owner" class="p-2 border-2 border-black rounded font-bold">
-                            <option value="Both">Both (Shared)</option><option value="Hha">Hha Only</option><option value="Ppita">Ppita Only</option>
-                        </select>
-                        <input id="np-planner" type="text" placeholder="Event Name / Planner Title" class="p-2 border-2 border-black rounded font-bold col-span-1 md:col-span-2">
-                        <textarea id="np-todo" placeholder="To-Do List (Optional)" class="p-2 border-2 border-black rounded col-span-1 md:col-span-2" rows="2"></textarea>
-                        <input id="np-prereq" type="text" placeholder="Prerequisites (Optional)" class="p-2 border-2 border-black rounded col-span-1 md:col-span-2">
-                        <input id="np-pickup" type="text" placeholder="Pickup Details (Optional)" class="p-2 border-2 border-black rounded">
-                        <input id="np-dropoff" type="text" placeholder="Drop off Details (Optional)" class="p-2 border-2 border-black rounded">
+                html += `</div><div class="bg-indigo-100 p-8 rounded-2xl border-2 border-black border-dashed mt-6">
+                    <h4 class="font-black uppercase mb-6 text-indigo-900 text-lg">Add New Personal Event</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-indigo-800">Date</label><input id="np-date" type="date" class="p-3 border-2 border-black rounded font-bold"></div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-indigo-800">Time</label>${generateTimeDropdownHTML('np')}</div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-indigo-800">Category</label>
+                            <select id="np-category" class="p-3 border-2 border-black rounded font-bold">
+                                ${personalCategories.map(c => `<option value="${c.id}">${c.icon} ${c.id}</option>`).join('')}
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-indigo-800">Owner</label>
+                            <select id="np-owner" class="p-3 border-2 border-black rounded font-bold">
+                                <option value="Both">Both (Shared)</option><option value="Hha">Hha Only</option><option value="Ppita">Ppita Only</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1 col-span-1 md:col-span-2"><label class="text-[10px] font-black uppercase text-indigo-800">Event Title</label><input id="np-planner" type="text" placeholder="Event Name / Planner Title" class="p-3 border-2 border-black rounded font-bold w-full"></div>
+                        <div class="flex flex-col gap-1 col-span-1 md:col-span-2"><label class="text-[10px] font-black uppercase text-indigo-800">To-Do List</label><textarea id="np-todo" placeholder="To-Do List (Optional)" class="p-3 border-2 border-black rounded font-bold w-full" rows="2"></textarea></div>
+                        <div class="flex flex-col gap-1 col-span-1 md:col-span-2"><label class="text-[10px] font-black uppercase text-indigo-800">Prerequisites</label><input id="np-prereq" type="text" placeholder="Prerequisites (Optional)" class="p-3 border-2 border-black rounded font-bold w-full"></div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-indigo-800">Pickup Details</label><input id="np-pickup" type="text" placeholder="Pickup Details (Optional)" class="p-3 border-2 border-black rounded font-bold"></div>
+                        <div class="flex flex-col gap-1"><label class="text-[10px] font-black uppercase text-indigo-800">Drop-off Details</label><input id="np-dropoff" type="text" placeholder="Drop off Details (Optional)" class="p-3 border-2 border-black rounded font-bold"></div>
                     </div>
-                    <button onclick="window.addPersonalEvent()" class="mt-6 w-full bg-indigo-500 text-white px-4 py-3 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest">Add Event</button>
+                    <button onclick="window.addPersonalEvent()" class="mt-8 w-full bg-indigo-500 text-white px-4 py-4 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest text-lg">Add Event</button>
                 </div>`;
             }
 
