@@ -107,12 +107,17 @@
         </div>
 
         <!-- Notification Banner for Week Start -->
-        <div class="mb-8 bg-slate-100 border-2 border-black text-slate-900 p-4 rounded-xl font-bold flex flex-col md:flex-row justify-between items-center text-sm uppercase tracking-wider solid-shadow-sm gap-4">
+        <div class="mb-4 bg-slate-100 border-2 border-black text-slate-900 p-4 rounded-xl font-bold flex flex-col md:flex-row justify-between items-center text-sm uppercase tracking-wider solid-shadow-sm gap-4">
             <div class="flex items-center gap-2 flex-wrap justify-center">
                 <span>📅</span> Viewing Week Of: 
                 <input type="date" id="display-week-start" onchange="window.updateWeekStart(this.value)" class="text-rose-600 bg-white px-2 py-1 rounded border-2 border-black cursor-pointer hover:bg-rose-50 transition-colors" title="Click to open calendar and jump to any week">
             </div>
             <div class="text-[10px] opacity-70 text-center md:text-right">Exams and Events falling in this week are shown below.</div>
+        </div>
+
+        <!-- PL Banner -->
+        <div id="pl-banner" class="hidden mb-8 bg-purple-100 border-2 border-purple-500 text-purple-900 p-4 rounded-xl font-bold flex flex-col md:flex-row justify-center items-center text-sm uppercase tracking-wider solid-shadow-sm gap-2 text-center">
+            <span>🏖️ Preparatory Leave (PL) Active! Regular classes are hidden.</span>
         </div>
 
         <!-- Legend -->
@@ -192,7 +197,7 @@
                     <button onclick="window.switchTab('tuitions')" id="tab-tuitions" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">🎒 Tuitions</button>
                     <button onclick="window.switchTab('buses')" id="tab-buses" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">🚌 Bus Fleet</button>
                     <button onclick="window.switchTab('weekly')" id="tab-weekly" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">📅 Week Overrides</button>
-                    <button onclick="window.switchTab('exams')" id="tab-exams" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">📝 Exams</button>
+                    <button onclick="window.switchTab('exams')" id="tab-exams" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">📝 Exams & PL</button>
                     <button onclick="window.switchTab('personal')" id="tab-personal" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">📌 Personal</button>
                     <!-- SPREADSHEET EDITOR TAB -->
                     <button onclick="window.switchTab('raw')" id="tab-raw" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap md:mt-auto bg-purple-100 text-purple-900 border-purple-300">🛠️ Spreadsheet</button>
@@ -211,7 +216,7 @@
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        const GOOGLE_SCRIPT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbz5P6iJQSsaMx-Z_aBpVZxmqqcueBVYLCcIDSTvn80qbYa_We0ekY-iwZQxytD8_10Y/exec"; 
+        const GOOGLE_SCRIPT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw_ml7uDAvp3_ZZ_8Iyd3RJY1ozFDCF7c5kKpHZ6JngKa0tqYAR--usG314lqnnWp-uGw/exec"; 
 
         // Core Timings & Data Structures
         const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -248,6 +253,7 @@
         const personalCategories = [
             { id: "Chores", icon: "🧹", color: "bg-slate-200 border-slate-500 text-slate-800" },
             { id: "Work", icon: "💼", color: "bg-blue-100 border-blue-500 text-blue-900" },
+            { id: "Date", icon: "💖", color: "bg-rose-100 border-rose-500 text-rose-900" },
             { id: "Clubbing", icon: "🪩", color: "bg-purple-100 border-purple-500 text-purple-900" },
             { id: "Competition", icon: "🏆", color: "bg-orange-100 border-orange-500 text-orange-900" },
             { id: "Misc", icon: "📌", color: "bg-teal-100 border-teal-500 text-teal-900" }
@@ -258,7 +264,7 @@
 
         let appData = {
             courses: [], tuitions: [], buses: [],
-            overrides: { currentWeekStart: new Date().toISOString().split('T')[0], exams: [], extras: [], cancelledIds: [] },
+            overrides: { currentWeekStart: new Date().toISOString().split('T')[0], exams: [], extras: [], cancelledIds: [], plStart: "", plEnd: "" },
             personalEvents: []
         };
 
@@ -272,6 +278,8 @@
                 appData.buses.forEach(b => { if(!b.owner) b.owner = 'Both'; });
                 if(!appData.personalEvents) appData.personalEvents = [];
                 appData.personalEvents.forEach(p => { if(!p.owner) p.owner = 'Both'; });
+                if(!appData.overrides.plStart) appData.overrides.plStart = "";
+                if(!appData.overrides.plEnd) appData.overrides.plEnd = "";
 
                 document.getElementById('sync-status').innerHTML = '<span class="text-blue-500">●</span> Loaded Locally';
                 document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-blue-50 border-2 border-blue-400 text-blue-800 flex items-center gap-2';
@@ -325,11 +333,13 @@
             onSnapshot(docRef, (snapshot) => {
                 if (snapshot.exists()) {
                     appData = snapshot.data();
-                    if(!appData.overrides) appData.overrides = { exams: [], extras: [], cancelledIds: [] };
+                    if(!appData.overrides) appData.overrides = { exams: [], extras: [], cancelledIds: [], plStart: "", plEnd: "" };
                     if(!appData.personalEvents) appData.personalEvents = [];
                     appData.tuitions.forEach(t => { if(!t.owner) t.owner = 'Hha'; });
                     appData.buses.forEach(b => { if(!b.owner) b.owner = 'Both'; });
                     appData.personalEvents.forEach(p => { if(!p.owner) p.owner = 'Both'; });
+                    if(!appData.overrides.plStart) appData.overrides.plStart = "";
+                    if(!appData.overrides.plEnd) appData.overrides.plEnd = "";
                     
                     localStorage.setItem('hhaPpitaUltimateData', JSON.stringify(appData));
                     
@@ -343,7 +353,6 @@
         }
 
         async function saveDataToCloud() {
-            // Instantly save to local storage
             localStorage.setItem('hhaPpitaUltimateData', JSON.stringify(appData));
             
             if (!userId || !db) return;
@@ -391,7 +400,7 @@
             .then(data => {
                 if (data && data.data) {
                     appData = data.data;
-                    saveDataToCloud(); // Save locally & to Firebase
+                    saveDataToCloud(); 
                     renderApp();
                     if(document.getElementById('db-modal').classList.contains('hidden') === false) renderDbContent();
                     
@@ -429,6 +438,15 @@
             
             hhaBtn.className = `px-4 py-1.5 rounded-full transition-all text-center ${window.globalOwnerFilter === 'Hha' ? 'bg-blue-600 text-white solid-shadow-sm scale-110' : 'text-blue-600 hover:bg-blue-200'}`;
             ppitaBtn.className = `px-4 py-1.5 rounded-full transition-all text-center ${window.globalOwnerFilter === 'Ppita' ? 'bg-pink-600 text-white solid-shadow-sm scale-110' : 'text-pink-600 hover:bg-pink-200'}`;
+        }
+
+        // --- PL Check Logic ---
+        function isDateInPL(dateStr) {
+            if (!appData.overrides.plStart || !appData.overrides.plEnd) return false;
+            const target = new Date(dateStr);
+            const start = new Date(appData.overrides.plStart);
+            const end = new Date(appData.overrides.plEnd);
+            return target >= start && target <= end;
         }
 
         // --- Smart Time Parser ---
@@ -473,6 +491,7 @@
 
             appData.courses.forEach(c => {
                 if (appData.overrides.cancelledIds.includes(c.id)) return;
+                if (isDateInPL(weekDates[day])) return; // PL overrides classes
                 if (ownerFilter !== 'All' && c.owner !== ownerFilter) return;
                 c.sessions.forEach(s => { if (s.day === day) checkAndSet(s.timeLabel); });
             });
@@ -507,14 +526,21 @@
                 document.getElementById('display-week-start').value = appData.overrides.currentWeekStart;
             }
             const weekDates = getWeekDates(appData.overrides.currentWeekStart);
+            
+            const weekHasPL = Object.values(weekDates).some(dateStr => isDateInPL(dateStr));
+            const plBanner = document.getElementById('pl-banner');
+            if (plBanner) {
+                if (weekHasPL) plBanner.classList.remove('hidden');
+                else plBanner.classList.add('hidden');
+            }
 
-            renderLegend();
+            renderLegend(weekDates);
             renderGrid(weekDates);
             renderUpcomingView();
             renderBusDirectory();
         }
 
-        function renderLegend() {
+        function renderLegend(weekDates) {
             const container = document.getElementById('legend-container');
             container.innerHTML = '';
             
@@ -558,6 +584,7 @@
 
             appData.courses.forEach(c => {
                 if (appData.overrides.cancelledIds.includes(c.id)) return;
+                if (isDateInPL(weekDates[day])) return; // Skip classes during PL
                 if (window.globalOwnerFilter !== 'All' && c.owner !== window.globalOwnerFilter) return;
                 c.sessions.forEach(s => { if (s.day === day && timeMatches(s.timeLabel)) events.push({ type: 'course', data: c, customTime: isCustomSlot ? s.timeLabel : null }); });
             });
@@ -600,6 +627,12 @@
                 bounds = boundsPpita;
             }
 
+            const getBusColorClass = (owner) => {
+                if (owner === 'Hha') return 'bg-blue-100 border-blue-300 text-blue-900';
+                if (owner === 'Ppita') return 'bg-pink-100 border-pink-300 text-pink-900';
+                return 'bg-purple-100 border-purple-300 text-purple-900';
+            };
+
             if (bounds.earliest === 9999) return `<div class="h-full w-full bg-slate-50 rounded-xl opacity-30 border-2 border-dashed border-slate-200 min-h-[60px]"></div>`;
 
             if (type === 'Arrival Bus') {
@@ -609,7 +642,7 @@
                 
                 if (displayBuses.length === 0) return `<div class="h-full w-full bg-slate-50 rounded-xl opacity-30 border-2 border-dashed border-slate-200 min-h-[60px]"></div>`;
 
-                const busContent = displayBuses.map(b => `<div class="text-[7.5px] md:text-[8.5px] font-bold bg-white px-1.5 py-0.5 rounded border border-emerald-200 w-full text-center mb-0.5 text-emerald-900 truncate" title="${b.name} ${b.time}">${b.name} ${b.time}</div>`).join('');
+                const busContent = displayBuses.map(b => `<div class="text-[7.5px] md:text-[8.5px] font-bold ${getBusColorClass(b.owner)} px-1.5 py-0.5 rounded border w-full text-center mb-0.5 truncate" title="${b.name} ${b.time}">${b.name} ${b.time}</div>`).join('');
                 return `
                     <div class="h-full w-full bg-emerald-50 rounded-xl border-2 border-emerald-400 p-2 flex flex-col items-center justify-center solid-shadow-sm min-h-[60px]">
                         <span class="text-[10px] font-black uppercase text-emerald-800 mb-1 tracking-widest flex items-center gap-1">🚌 IN</span>
@@ -617,12 +650,19 @@
                     </div>`;
             } else {
                 let validBuses = appData.buses.filter(b => b.trip === 'Down' && parseTimeToMinutes(b.time) >= bounds.latest && (b.owner === 'Both' || window.globalOwnerFilter === 'All' || b.owner === window.globalOwnerFilter));
-                validBuses.sort((a,b) => parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time));
+                
+                // Prioritize "Both" buses for down trips, then sort by time
+                validBuses.sort((a,b) => {
+                    if (a.owner === 'Both' && b.owner !== 'Both') return -1;
+                    if (b.owner === 'Both' && a.owner !== 'Both') return 1;
+                    return parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time);
+                });
+                
                 let displayBuses = validBuses.slice(0, 3);
                 
                 if (displayBuses.length === 0) return `<div class="h-full w-full bg-slate-50 rounded-xl opacity-30 border-2 border-dashed border-slate-200 min-h-[60px]"></div>`;
 
-                const busContent = displayBuses.map(b => `<div class="text-[7.5px] md:text-[8.5px] font-bold bg-white px-1.5 py-0.5 rounded border border-rose-200 w-full text-center mb-0.5 text-rose-900 truncate" title="${b.name} ${b.time}">${b.name} ${b.time}</div>`).join('');
+                const busContent = displayBuses.map(b => `<div class="text-[7.5px] md:text-[8.5px] font-bold ${getBusColorClass(b.owner)} px-1.5 py-0.5 rounded border w-full text-center mb-0.5 truncate" title="${b.name} ${b.time}">${b.name} ${b.time}</div>`).join('');
                 return `
                     <div class="h-full w-full bg-rose-50 rounded-xl border-2 border-rose-400 p-2 flex flex-col items-center justify-center solid-shadow-sm min-h-[60px]">
                         <span class="text-[10px] font-black uppercase text-rose-800 mb-1 tracking-widest flex items-center gap-1">🏠 OUT</span>
@@ -633,6 +673,31 @@
 
         function generateLoveTimeHtml(day, weekDates) {
             if (window.globalOwnerFilter !== 'All') return `<div class="h-full w-full bg-slate-50 rounded-xl opacity-30 border-2 border-dashed border-slate-200 min-h-[100px]"></div>`;
+
+            let hhaHasClass = false;
+            let ppitaHasClass = false;
+
+            appData.courses.forEach(c => {
+                if (appData.overrides.cancelledIds.includes(c.id)) return;
+                if (isDateInPL(weekDates[day])) return; // No classes in PL
+                c.sessions.forEach(s => {
+                    if (s.day === day) {
+                        if (c.owner === 'Hha') hhaHasClass = true;
+                        if (c.owner === 'Ppita') ppitaHasClass = true;
+                    }
+                });
+            });
+
+            // Also check exams (exams happen even in PL)
+            appData.overrides.exams.forEach(ex => {
+                if (ex.date === weekDates[day]) {
+                    if (ex.owner === 'Hha') hhaHasClass = true;
+                    if (ex.owner === 'Ppita') ppitaHasClass = true;
+                }
+            });
+            
+            // Only show love time if both have a valid class/exam on campus
+            if (!hhaHasClass || !ppitaHasClass) return `<div class="h-full w-full bg-slate-50 rounded-xl opacity-30 border-2 border-dashed border-slate-200 min-h-[100px]"></div>`;
 
             let boundsHha = getDayTimeBounds(day, weekDates, 'Hha');
             let boundsPpita = getDayTimeBounds(day, weekDates, 'Ppita');
@@ -646,7 +711,14 @@
 
                 let overallLatest = Math.max(boundsHha.latest, boundsPpita.latest);
                 let validBuses = appData.buses.filter(b => b.trip === 'Down' && parseTimeToMinutes(b.time) >= overallLatest);
-                validBuses.sort((a,b) => parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time));
+                
+                // Prioritize "Both" buses for down trips, then sort by time
+                validBuses.sort((a,b) => {
+                    if (a.owner === 'Both' && b.owner !== 'Both') return -1;
+                    if (b.owner === 'Both' && a.owner !== 'Both') return 1;
+                    return parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time);
+                });
+                
                 let busInfo = validBuses.length > 0 ? `${validBuses[0].name} (${validBuses[0].time})` : 'No Bus';
 
                 return `
@@ -847,13 +919,19 @@
             let validBuses = appData.buses.filter(b => window.globalOwnerFilter === 'All' || b.owner === 'Both' || b.owner === window.globalOwnerFilter);
             
             let upBuses = validBuses.filter(b => b.trip === 'Up').sort((a,b) => parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time));
-            let downBuses = validBuses.filter(b => b.trip === 'Down').sort((a,b) => parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time));
+            
+            // Prioritize "Both" buses for down trips
+            let downBuses = validBuses.filter(b => b.trip === 'Down').sort((a,b) => {
+                if (a.owner === 'Both' && b.owner !== 'Both') return -1;
+                if (b.owner === 'Both' && a.owner !== 'Both') return 1;
+                return parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time);
+            });
 
             const createBusCard = (b, isUp) => {
-                const bg = isUp ? 'bg-emerald-50' : 'bg-rose-50';
-                const border = isUp ? 'border-emerald-300' : 'border-rose-300';
-                const textMain = isUp ? 'text-emerald-900' : 'text-rose-900';
-                const textSub = isUp ? 'text-emerald-700' : 'text-rose-700';
+                let bg, border, textMain, textSub;
+                if (b.owner === 'Hha') { bg='bg-blue-50'; border='border-blue-300'; textMain='text-blue-900'; textSub='text-blue-700'; }
+                else if (b.owner === 'Ppita') { bg='bg-pink-50'; border='border-pink-300'; textMain='text-pink-900'; textSub='text-pink-700'; }
+                else { bg='bg-purple-50'; border='border-purple-300'; textMain='text-purple-900'; textSub='text-purple-700'; }
 
                 return `
                 <div class="${bg} border-2 ${border} p-4 rounded-xl flex flex-col gap-2 solid-shadow-sm hover-lift transition-all">
@@ -931,6 +1009,14 @@
                             <div>
                                 <label class="text-[10px] font-black uppercase text-purple-800">Cancelled Course IDs (Comma Separated)</label>
                                 <input id="ss-cancelled" type="text" value="${(appData.overrides.cancelledIds || []).join(', ')}" class="w-full p-2 border-2 border-black rounded font-bold mt-1" placeholder="e.g. 102, 304">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black uppercase text-purple-800">PL Start Date</label>
+                                <input id="ss-pl-start" type="date" value="${appData.overrides.plStart || ''}" class="w-full p-2 border-2 border-black rounded font-bold mt-1">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black uppercase text-purple-800">PL End Date</label>
+                                <input id="ss-pl-end" type="date" value="${appData.overrides.plEnd || ''}" class="w-full p-2 border-2 border-black rounded font-bold mt-1">
                             </div>
                          </div>`;
 
@@ -1130,7 +1216,29 @@
                     </div></div>`;
             }
             else if (activeTab === 'exams') {
-                html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2 text-amber-600">Exams (Date Based)</h3><div class="space-y-2 mb-8">`;
+                html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2 text-amber-600">Exams & Preparatory Leave (PL)</h3>`;
+                
+                // PL Section
+                html += `<div class="bg-purple-100 p-6 rounded-xl border-2 border-purple-400 mb-8 solid-shadow-sm">
+                    <h4 class="font-black uppercase mb-4 text-purple-900">🏖️ Preparatory Leave (PL) Period</h4>
+                    <p class="text-xs font-bold text-purple-700 mb-4">Set a PL period to automatically hide all regular classes during these dates. Exams and buses will still appear.</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 items-end">
+                        <div>
+                            <label class="text-[10px] font-black uppercase text-purple-800">Start Date</label>
+                            <input id="pl-start-date" type="date" value="${appData.overrides.plStart}" class="w-full p-2 border-2 border-purple-400 rounded font-bold mt-1 bg-white">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-black uppercase text-purple-800">End Date</label>
+                            <input id="pl-end-date" type="date" value="${appData.overrides.plEnd}" class="w-full p-2 border-2 border-purple-400 rounded font-bold mt-1 bg-white">
+                        </div>
+                    </div>
+                    <div class="flex gap-4 mt-4">
+                        <button onclick="window.setPLPeriod()" class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest">Set PL</button>
+                        <button onclick="window.clearPLPeriod()" class="bg-white text-red-600 px-4 py-2 rounded-xl border-2 border-red-400 font-black hover-lift uppercase tracking-widest">Clear PL</button>
+                    </div>
+                </div>`;
+
+                html += `<div class="space-y-2 mb-8">`;
                 appData.overrides.exams.forEach((ex, idx) => {
                     html += `<div class="flex justify-between bg-amber-50 border-2 border-amber-200 p-3 rounded-lg solid-shadow-sm"><div><div class="font-black text-sm text-amber-900 uppercase">⚠️ ${ex.courseCode}: ${ex.examName}</div><div class="text-xs font-bold text-amber-700">${ex.date} | ${ex.timeLabel} (${ex.owner})</div></div><button onclick="window.deleteOverride('exams', ${idx})" class="text-red-500 font-bold hover:bg-red-50 px-2 rounded">Delete</button></div>`;
                 });
@@ -1225,6 +1333,8 @@
                 appData.overrides.currentWeekStart = document.getElementById('ss-week-start').value;
                 const cancelledRaw = document.getElementById('ss-cancelled').value;
                 appData.overrides.cancelledIds = cancelledRaw ? cancelledRaw.split(',').map(s => s.trim()).filter(s => s) : [];
+                appData.overrides.plStart = document.getElementById('ss-pl-start').value;
+                appData.overrides.plEnd = document.getElementById('ss-pl-end').value;
 
                 saveDataToCloud();
                 renderDbContent();
@@ -1328,6 +1438,26 @@
             saveDataToCloud();
             renderDbContent(); 
             renderApp(); 
+        };
+
+        window.setPLPeriod = () => {
+            const start = document.getElementById('pl-start-date').value;
+            const end = document.getElementById('pl-end-date').value;
+            if(!start || !end) return alert("Both Start Date and End Date are required.");
+            if(new Date(start) > new Date(end)) return alert("Start Date must be before End Date.");
+            appData.overrides.plStart = start;
+            appData.overrides.plEnd = end;
+            saveDataToCloud();
+            renderDbContent();
+            renderApp();
+        };
+
+        window.clearPLPeriod = () => {
+            appData.overrides.plStart = "";
+            appData.overrides.plEnd = "";
+            saveDataToCloud();
+            renderDbContent();
+            renderApp();
         };
 
         window.addExam = () => {
