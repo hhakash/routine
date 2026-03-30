@@ -61,6 +61,7 @@
 </head>
 <body class="p-2 md:p-8">
 
+    <!-- Top Controls -->
     <div class="max-w-[1600px] mx-auto mb-6 flex flex-wrap gap-3 no-print justify-center md:justify-end items-center">
         <div id="sync-status" class="text-xs font-bold px-3 py-1 rounded-full bg-yellow-100 border-2 border-yellow-400 text-yellow-800 flex items-center gap-2">
             <span class="animate-pulse">●</span> Loading...
@@ -76,8 +77,10 @@
         </button>
     </div>
 
+    <!-- Main Canvas -->
     <div id="capture-area" class="max-w-[1600px] mx-auto p-4 md:p-10 bg-white main-border rounded-[2rem] md:rounded-[3rem] solid-shadow mb-10">
         
+        <!-- Header & Grand Filter -->
         <div class="mb-10 text-center flex flex-col items-center">
             
             <div class="bg-rose-100 text-rose-900 border-2 border-black p-1.5 md:p-2 rounded-3xl md:rounded-full font-black text-xs md:text-sm mb-5 solid-shadow-sm uppercase tracking-widest flex flex-wrap justify-center items-center gap-2 cursor-pointer transition-all" onclick="window.clearGlobalFilter(event)" title="Click to clear filters">
@@ -96,6 +99,7 @@
             </p>
         </div>
 
+        <!-- Notification Banner for Week Start -->
         <div class="mb-8 bg-slate-100 border-2 border-black text-slate-900 p-4 rounded-xl font-bold flex flex-col md:flex-row justify-between items-center text-sm uppercase tracking-wider solid-shadow-sm gap-4">
             <div class="flex items-center gap-2 flex-wrap justify-center">
                 <span>📅</span> Viewing Week Of: 
@@ -104,27 +108,34 @@
             <div class="text-[10px] opacity-70 text-center md:text-right">Exams and Events falling in this week are shown below.</div>
         </div>
 
+        <!-- Legend -->
         <div class="mb-10 bg-slate-50 p-6 rounded-[2rem] border-2 border-slate-200 border-dashed">
             <div id="legend-container" class="flex flex-wrap justify-center gap-4">
-                </div>
+                <!-- Generated dynamically -->
+            </div>
         </div>
         
+        <!-- Grid -->
         <div class="schedule-grid" id="grid-container">
-            </div>
+            <!-- Generated dynamically -->
+        </div>
 
     </div>
 
-    <div class="max-w-[1600px] mx-auto bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] main-border solid-shadow mb-20 no-print">
+    <!-- UPCOMING VIEWS (Exams & Events) -->
+    <div class="max-w-[1600px] mx-auto bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] main-border solid-shadow mb-10 no-print">
         <h2 class="text-3xl font-black uppercase mb-8 border-b-4 border-black pb-2 flex items-center gap-3">
             <span>🚀</span> Upcoming Radar
         </h2>
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <!-- Upcoming Exams -->
             <div>
                 <h3 class="text-xl font-black uppercase mb-6 text-amber-600 bg-amber-50 inline-block px-4 py-1 rounded-lg border-2 border-amber-200">⚠️ Exams</h3>
                 <div id="upcoming-exams-list" class="space-y-4"></div>
             </div>
             
+            <!-- Personal Events -->
             <div>
                 <h3 class="text-xl font-black uppercase mb-6 text-indigo-600 bg-indigo-50 inline-block px-4 py-1 rounded-lg border-2 border-indigo-200">📌 Personal Events</h3>
                 <div id="upcoming-personal-list" class="space-y-4"></div>
@@ -153,9 +164,11 @@
         </div>
     </div>
 
+    <!-- DATABASE MODAL -->
     <div id="db-modal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-2 md:p-6 no-print">
         <div class="bg-white w-full max-w-6xl h-[95vh] rounded-[2rem] border-4 border-black solid-shadow flex flex-col overflow-hidden relative">
             
+            <!-- Modal Header -->
             <div class="bg-black text-white p-4 md:p-6 flex justify-between items-center flex-shrink-0">
                 <div>
                     <h2 class="text-2xl font-black uppercase tracking-wider flex items-center gap-2"><span>💾</span> Master Database</h2>
@@ -164,7 +177,9 @@
                 <button onclick="window.closeDatabase()" class="text-white hover:text-rose-400 font-bold text-3xl leading-none">&times;</button>
             </div>
 
+            <!-- Modal Body -->
             <div class="flex flex-col md:flex-row flex-1 overflow-hidden">
+                <!-- Sidebar -->
                 <div class="w-full md:w-64 bg-slate-100 border-b-2 md:border-b-0 md:border-r-2 border-black p-4 flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto flex-shrink-0 hide-scrollbar">
                     <button onclick="window.switchTab('courses')" id="tab-courses" class="tab-btn active text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">📚 Uni Courses</button>
                     <button onclick="window.switchTab('tuitions')" id="tab-tuitions" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">🎒 Tuitions</button>
@@ -172,10 +187,14 @@
                     <button onclick="window.switchTab('weekly')" id="tab-weekly" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">📅 Week Overrides</button>
                     <button onclick="window.switchTab('exams')" id="tab-exams" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">📝 Exams</button>
                     <button onclick="window.switchTab('personal')" id="tab-personal" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">📌 Personal</button>
+                    <!-- SPREADSHEET EDITOR TAB -->
+                    <button onclick="window.switchTab('raw')" id="tab-raw" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap md:mt-auto bg-purple-100 text-purple-900 border-purple-300">🛠️ Spreadsheet</button>
                 </div>
 
+                <!-- Content Area -->
                 <div class="flex-1 p-4 md:p-8 overflow-y-auto bg-slate-50" id="db-content">
-                    </div>
+                    <!-- Dynamic form content goes here -->
+                </div>
             </div>
         </div>
     </div>
@@ -310,15 +329,17 @@
                     document.getElementById('sync-status').innerHTML = '<span class="text-emerald-500">●</span> Cloud Synced';
                     document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 border-2 border-emerald-400 text-emerald-800 flex items-center gap-2';
                 } else { saveDataToCloud(); }
+                
                 renderApp();
                 if(document.getElementById('db-modal').classList.contains('hidden') === false) renderDbContent();
             });
         }
 
         async function saveDataToCloud() {
+            // Instantly save to local storage
             localStorage.setItem('hhaPpitaUltimateData', JSON.stringify(appData));
             
-            // ALWAYS trigger Google Sheet sync regardless of Firebase auth status
+            // Always trigger Google Sheet sync
             autoSyncToGoogleSheet();
 
             if (!userId || !db) return;
@@ -332,11 +353,8 @@
             if (!GOOGLE_SCRIPT_WEB_APP_URL) return; 
             document.getElementById('sync-status').innerHTML = '<span class="text-amber-500 animate-spin">↻</span> Syncing...';
             
-            // Use text/plain to bypass strict CORS preflight failures on GitHub Pages
             fetch(GOOGLE_SCRIPT_WEB_APP_URL, {
-                method: "POST", 
-                mode: "no-cors", 
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify({ timestamp: new Date().toISOString(), data: appData })
             }).then(() => {
                 setTimeout(() => {
@@ -346,6 +364,7 @@
             }).catch(e => {
                 console.log("Webhook sync failed", e);
                 document.getElementById('sync-status').innerHTML = '<span class="text-red-500">●</span> Sync Error';
+                document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-red-50 border-2 border-red-400 text-red-800 flex items-center gap-2';
             });
         }
 
@@ -367,8 +386,8 @@
             const hhaBtn = document.getElementById('filter-hha');
             const ppitaBtn = document.getElementById('filter-ppita');
             
-            hhaBtn.className = `px-4 py-1.5 rounded-full transition-all ${window.globalOwnerFilter === 'Hha' ? 'bg-blue-600 text-white solid-shadow-sm scale-110' : 'text-blue-600 hover:bg-blue-200'}`;
-            ppitaBtn.className = `px-4 py-1.5 rounded-full transition-all ${window.globalOwnerFilter === 'Ppita' ? 'bg-pink-600 text-white solid-shadow-sm scale-110' : 'text-pink-600 hover:bg-pink-200'}`;
+            hhaBtn.className = `px-4 py-1.5 rounded-full transition-all text-center ${window.globalOwnerFilter === 'Hha' ? 'bg-blue-600 text-white solid-shadow-sm scale-110' : 'text-blue-600 hover:bg-blue-200'}`;
+            ppitaBtn.className = `px-4 py-1.5 rounded-full transition-all text-center ${window.globalOwnerFilter === 'Ppita' ? 'bg-pink-600 text-white solid-shadow-sm scale-110' : 'text-pink-600 hover:bg-pink-200'}`;
         }
 
         // --- Smart Time Parser ---
@@ -842,9 +861,77 @@
 
         function renderDbContent() {
             const content = document.getElementById('db-content');
-            let html = `<div class="max-w-4xl mx-auto pb-20">`;
+            let html = `<div class="max-w-5xl mx-auto pb-20">`; // Widened slightly for spreadsheets
 
-            if (activeTab === 'courses') {
+            if (activeTab === 'raw') {
+                html += `<div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 border-b-2 border-black pb-4 gap-4">
+                            <div>
+                                <h3 class="text-xl font-black uppercase text-purple-600">🛠️ Spreadsheet Editor</h3>
+                                <p class="text-xs font-bold text-slate-500 mt-1">Edit the database directly in table format. Changes are saved when you click 'Save Spreadsheet'.</p>
+                            </div>
+                            <button onclick="window.saveSpreadsheetData()" class="bg-purple-600 text-white px-6 py-2.5 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest solid-shadow-sm whitespace-nowrap">Save Spreadsheet</button>
+                         </div>`;
+                
+                // Add Global Overrides Section
+                html += `<div class="bg-purple-50 p-4 rounded-xl border-2 border-purple-300 mb-6 solid-shadow-sm grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-[10px] font-black uppercase text-purple-800">Current Week Start Date</label>
+                                <input id="ss-week-start" type="date" value="${appData.overrides.currentWeekStart}" class="w-full p-2 border-2 border-black rounded font-bold mt-1">
+                            </div>
+                            <div>
+                                <label class="text-[10px] font-black uppercase text-purple-800">Cancelled Course IDs (Comma Separated)</label>
+                                <input id="ss-cancelled" type="text" value="${(appData.overrides.cancelledIds || []).join(', ')}" class="w-full p-2 border-2 border-black rounded font-bold mt-1" placeholder="e.g. 102, 304">
+                            </div>
+                         </div>`;
+
+                const generateSpreadsheet = (title, id, data, columns) => {
+                    let tableHtml = `<h4 class="font-black uppercase mb-2 mt-8 text-purple-800 flex items-center gap-2"><span>📋</span> ${title}</h4>`;
+                    tableHtml += `<div class="overflow-x-auto border-2 border-black rounded-xl solid-shadow-sm mb-2 bg-white max-h-[350px] overflow-y-auto relative">`;
+                    tableHtml += `<table class="w-full text-xs text-left whitespace-nowrap" id="sheet-${id}">`;
+                    tableHtml += `<thead class="bg-purple-100 sticky top-0 z-10"><tr class="border-b-2 border-black">`;
+                    columns.forEach(col => { tableHtml += `<th class="p-2 border-r border-black font-black uppercase">${col.label}</th>`; });
+                    tableHtml += `<th class="p-2 font-black uppercase text-center w-10">Del</th>`;
+                    tableHtml += `</tr></thead><tbody>`;
+
+                    (data || []).forEach((row, rIndex) => {
+                        tableHtml += `<tr class="border-b border-slate-200 hover:bg-slate-50">`;
+                        columns.forEach(col => {
+                            let val = row[col.key] !== undefined ? row[col.key] : '';
+                            if (typeof val === 'object') val = JSON.stringify(val);
+                            val = String(val).replace(/"/g, '&quot;');
+                            tableHtml += `<td class="p-0 border-r border-slate-200"><input type="text" class="w-full p-2 bg-transparent outline-none focus:bg-purple-100" data-key="${col.key}" value="${val}"></td>`;
+                        });
+                        tableHtml += `<td class="p-1 text-center"><button onclick="this.closest('tr').remove()" class="text-red-500 font-bold px-2 hover:bg-red-50 rounded" title="Delete Row">✖</button></td>`;
+                        tableHtml += `</tr>`;
+                    });
+
+                    // Empty row for new entries
+                    tableHtml += `<tr class="bg-green-50 border-b-2 border-green-200" data-new="true">`;
+                    columns.forEach(col => {
+                        tableHtml += `<td class="p-0 border-r border-green-200"><input type="text" class="w-full p-2 bg-transparent outline-none focus:bg-green-100 placeholder-green-800/30" placeholder="+ Add ${col.label}" data-key="${col.key}"></td>`;
+                    });
+                    tableHtml += `<td class="p-1 text-center text-[9px] font-black text-green-700 uppercase">New</td>`;
+                    tableHtml += `</tr>`;
+
+                    tableHtml += `</tbody></table></div>`;
+                    return tableHtml;
+                };
+
+                const colsCourses = [{key:'id', label:'ID'}, {key:'code', label:'Code'}, {key:'name', label:'Name'}, {key:'room', label:'Room'}, {key:'owner', label:'Owner'}, {key:'color', label:'Color'}, {key:'sessions', label:'Sessions (JSON)'}];
+                const colsTuitions = [{key:'id', label:'ID'}, {key:'classLevel', label:'Level'}, {key:'area', label:'Area'}, {key:'owner', label:'Owner'}, {key:'color', label:'Color'}, {key:'sessions', label:'Sessions (JSON)'}];
+                const colsBuses = [{key:'id', label:'ID'}, {key:'name', label:'Name'}, {key:'number', label:'Bus #'}, {key:'time', label:'Time'}, {key:'stop', label:'Stop'}, {key:'trip', label:'Trip'}, {key:'owner', label:'Owner'}];
+                const colsExams = [{key:'examName', label:'Exam Name'}, {key:'courseId', label:'Course ID'}, {key:'courseCode', label:'Course Code'}, {key:'owner', label:'Owner'}, {key:'date', label:'Date'}, {key:'timeLabel', label:'Time'}];
+                const colsExtras = [{key:'courseId', label:'Course ID'}, {key:'courseCode', label:'Course Code'}, {key:'owner', label:'Owner'}, {key:'day', label:'Day'}, {key:'timeLabel', label:'Time'}];
+                const colsPersonal = [{key:'date', label:'Date'}, {key:'timeLabel', label:'Time'}, {key:'category', label:'Category'}, {key:'owner', label:'Owner'}, {key:'planner', label:'Planner Title'}, {key:'todo', label:'To-Do'}, {key:'prereq', label:'Prereq'}, {key:'pickup', label:'Pickup'}, {key:'dropoff', label:'Dropoff'}];
+
+                html += generateSpreadsheet('University Courses', 'courses', appData.courses, colsCourses);
+                html += generateSpreadsheet('Tuitions', 'tuitions', appData.tuitions, colsTuitions);
+                html += generateSpreadsheet('Bus Fleet', 'buses', appData.buses, colsBuses);
+                html += generateSpreadsheet('Exams (Overrides)', 'exams', appData.overrides.exams, colsExams);
+                html += generateSpreadsheet('Extra Classes (Overrides)', 'extras', appData.overrides.extras, colsExtras);
+                html += generateSpreadsheet('Personal Events', 'personal', appData.personalEvents, colsPersonal);
+            }
+            else if (activeTab === 'courses') {
                 html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2">University Courses</h3>`;
                 appData.courses.forEach((c, index) => {
                     html += `<div class="bg-white p-4 rounded-xl border-2 border-black mb-4 flex justify-between items-center solid-shadow-sm hover-lift">
@@ -964,7 +1051,7 @@
                 <div class="mb-8 border-t-2 border-black pt-8"><h4 class="font-black uppercase mb-4 bg-emerald-600 text-white px-4 py-1 inline-block rounded">2. Extra Classes</h4>
                     <div class="space-y-2 mb-6">`;
                     appData.overrides.extras.forEach((ex, idx) => {
-                        html += `<div class="flex justify-between bg-emerald-50 border-2 border-emerald-200 p-2 rounded-lg"><span class="font-bold text-sm">➕ ${ex.courseCode} - ${ex.day} ${ex.timeLabel}</span><button onclick="window.deleteOverride('extras', ${idx})" class="text-red-500 font-bold">&times; Remove</button></div>`;
+                        html += `<div class="flex justify-between bg-emerald-50 border-2 border-emerald-200 p-2 rounded-lg"><span class="font-bold text-sm">➕ ${ex.courseCode} - ${ex.day} ${ex.timeLabel}</span><button onclick="window.deleteOverride('extras', ${idx})" class="text-red-500 font-bold hover:bg-red-50 px-2 rounded">&times; Remove</button></div>`;
                     });
                 html += `</div>
                     <div class="bg-emerald-50 p-6 rounded-xl border-2 border-emerald-600 border-dashed">
@@ -979,7 +1066,7 @@
             else if (activeTab === 'exams') {
                 html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2 text-amber-600">Exams (Date Based)</h3><div class="space-y-2 mb-8">`;
                 appData.overrides.exams.forEach((ex, idx) => {
-                    html += `<div class="flex justify-between bg-amber-50 border-2 border-amber-200 p-3 rounded-lg solid-shadow-sm"><div><div class="font-black text-sm text-amber-900 uppercase">⚠️ ${ex.courseCode}: ${ex.examName}</div><div class="text-xs font-bold text-amber-700">${ex.date} | ${ex.timeLabel} (${ex.owner})</div></div><button onclick="window.deleteOverride('exams', ${idx})" class="text-red-500 font-bold">Delete</button></div>`;
+                    html += `<div class="flex justify-between bg-amber-50 border-2 border-amber-200 p-3 rounded-lg solid-shadow-sm"><div><div class="font-black text-sm text-amber-900 uppercase">⚠️ ${ex.courseCode}: ${ex.examName}</div><div class="text-xs font-bold text-amber-700">${ex.date} | ${ex.timeLabel} (${ex.owner})</div></div><button onclick="window.deleteOverride('exams', ${idx})" class="text-red-500 font-bold hover:bg-red-50 px-2 rounded">Delete</button></div>`;
                 });
                 html += `</div><div class="bg-amber-100 p-6 rounded-xl border-2 border-black border-dashed mt-6">
                     <h4 class="font-bold uppercase mb-4 text-amber-900">Schedule New Exam</h4>
@@ -995,7 +1082,7 @@
             else if (activeTab === 'personal') {
                 html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2 text-indigo-600">Personal Scheduler (Date Based)</h3><div class="space-y-2 mb-8">`;
                 appData.personalEvents.forEach((pe, idx) => {
-                    html += `<div class="flex justify-between bg-indigo-50 border-2 border-indigo-200 p-3 rounded-lg solid-shadow-sm"><div><div class="font-black text-sm text-indigo-900 uppercase">📌 ${pe.planner} <span class="text-[10px] uppercase font-black opacity-50 ml-1">(${pe.owner})</span></div><div class="text-xs font-bold text-indigo-700">${pe.date} | ${pe.timeLabel} (${pe.category})</div></div><button onclick="window.deleteOverride('personalEvents', ${idx})" class="text-red-500 font-bold">Delete</button></div>`;
+                    html += `<div class="flex justify-between bg-indigo-50 border-2 border-indigo-200 p-3 rounded-lg solid-shadow-sm"><div><div class="font-black text-sm text-indigo-900 uppercase">📌 ${pe.planner} <span class="text-[10px] uppercase font-black opacity-50 ml-1">(${pe.owner})</span></div><div class="text-xs font-bold text-indigo-700">${pe.date} | ${pe.timeLabel} (${pe.category})</div></div><button onclick="window.deleteOverride('personalEvents', ${idx})" class="text-red-500 font-bold hover:bg-red-50 px-2 rounded">Delete</button></div>`;
                 });
                 html += `</div><div class="bg-indigo-100 p-6 rounded-xl border-2 border-black border-dashed mt-6">
                     <h4 class="font-bold uppercase mb-4 text-indigo-900">Add New Personal Event</h4>
@@ -1023,11 +1110,71 @@
         }
 
         // --- Form Actions ---
-        window.deleteItem = (col, idx) => { appData[col].splice(idx, 1); saveDataToCloud(); };
+        window.saveSpreadsheetData = () => {
+            try {
+                const extractData = (id) => {
+                    const rows = document.querySelectorAll(`#sheet-${id} tbody tr`);
+                    const result = [];
+                    rows.forEach(tr => {
+                        const obj = {};
+                        let hasData = false;
+                        tr.querySelectorAll('input').forEach(input => {
+                            const key = input.getAttribute('data-key');
+                            let val = input.value.trim();
+                            if (val) hasData = true;
+                            
+                            // Safe JSON parsing specifically for sessions arrays
+                            if (key === 'sessions' && (val.startsWith('[') || val.startsWith('{'))) {
+                                try { val = JSON.parse(val); } catch(e) {}
+                            }
+                            obj[key] = val;
+                        });
+                        
+                        if (hasData) {
+                            // Enforce sessions array format for courses/tuitions
+                            if ((id === 'courses' || id === 'tuitions') && !Array.isArray(obj.sessions)) {
+                                obj.sessions = typeof obj.sessions === 'string' && obj.sessions ? [{ day: "Sunday", timeLabel: obj.sessions }] : [];
+                            }
+                            result.push(obj);
+                        }
+                    });
+                    return result;
+                };
+
+                appData.courses = extractData('courses');
+                appData.tuitions = extractData('tuitions');
+                appData.buses = extractData('buses');
+                appData.overrides.exams = extractData('exams');
+                appData.overrides.extras = extractData('extras');
+                appData.personalEvents = extractData('personal');
+                
+                // Extract global overrides
+                appData.overrides.currentWeekStart = document.getElementById('ss-week-start').value;
+                const cancelledRaw = document.getElementById('ss-cancelled').value;
+                appData.overrides.cancelledIds = cancelledRaw ? cancelledRaw.split(',').map(s => s.trim()).filter(s => s) : [];
+
+                saveDataToCloud();
+                renderDbContent();
+                renderApp();
+                alert("Spreadsheet database successfully updated!");
+            } catch (e) {
+                alert("Error saving spreadsheet: " + e.message);
+            }
+        };
+
+        window.deleteItem = (col, idx) => { 
+            appData[col].splice(idx, 1); 
+            saveDataToCloud(); 
+            renderDbContent(); 
+            renderApp(); 
+        };
+        
         window.deleteOverride = (type, idx) => { 
             if(type === 'personalEvents') appData.personalEvents.splice(idx, 1);
             else appData.overrides[type].splice(idx, 1); 
             saveDataToCloud(); 
+            renderDbContent(); 
+            renderApp(); 
         };
 
         window.addCourse = () => {
@@ -1039,6 +1186,8 @@
                 color: document.getElementById('nc-color').value, sessions: [{ day: document.getElementById('nc-day').value, timeLabel: getFinalTimeValue('nc') }]
             });
             saveDataToCloud();
+            renderDbContent(); 
+            renderApp(); 
         };
 
         window.addTuition = () => {
@@ -1049,6 +1198,8 @@
                 color: document.getElementById('nt-color').value, sessions: [{ day: document.getElementById('nt-day').value, timeLabel: getFinalTimeValue('nt') }]
             });
             saveDataToCloud();
+            renderDbContent(); 
+            renderApp(); 
         };
 
         window.addBus = () => {
@@ -1059,29 +1210,40 @@
                 time: getFinalTimeValue('nb'), stop: document.getElementById('nb-stop').value || "-", trip: document.getElementById('nb-trip').value, owner: document.getElementById('nb-owner').value
             });
             saveDataToCloud();
+            renderDbContent(); 
+            renderApp(); 
         };
 
         window.updateWeekStart = (val) => { 
             if (!val) return;
-            // Parse local time and snap to Sunday automatically
             const parts = val.split('-');
             const d = new Date(parts[0], parts[1] - 1, parts[2]);
-            d.setDate(d.getDate() - d.getDay()); // Snap back to Sunday
+            d.setDate(d.getDate() - d.getDay()); 
             
             const sundayStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
             appData.overrides.currentWeekStart = sundayStr; 
             
             saveDataToCloud(); 
+            if(document.getElementById('db-modal').classList.contains('hidden') === false) renderDbContent();
             renderApp();
         };
         
-        window.toggleCancel = (id) => { const idx = appData.overrides.cancelledIds.indexOf(id); if (idx > -1) appData.overrides.cancelledIds.splice(idx, 1); else appData.overrides.cancelledIds.push(id); saveDataToCloud(); };
+        window.toggleCancel = (id) => { 
+            const idx = appData.overrides.cancelledIds.indexOf(id); 
+            if (idx > -1) appData.overrides.cancelledIds.splice(idx, 1); 
+            else appData.overrides.cancelledIds.push(id); 
+            saveDataToCloud(); 
+            renderDbContent(); 
+            renderApp(); 
+        };
 
         window.addExtraClass = () => {
             const val = document.getElementById('nxt-course').value; if(!val) return;
             const [id, code, owner] = val.split('|');
             appData.overrides.extras.push({ courseId: id, courseCode: code, owner, day: document.getElementById('nxt-day').value, timeLabel: getFinalTimeValue('nxt') });
             saveDataToCloud();
+            renderDbContent(); 
+            renderApp(); 
         };
 
         window.addExam = () => {
@@ -1090,6 +1252,8 @@
             const [id, code, owner] = val.split('|');
             appData.overrides.exams.push({ examName: document.getElementById('nx-name').value || "Exam", courseId: id, courseCode: code, owner, date, timeLabel: getFinalTimeValue('nx') });
             saveDataToCloud();
+            renderDbContent(); 
+            renderApp(); 
         };
 
         window.addPersonalEvent = () => {
@@ -1100,6 +1264,8 @@
                 prereq: document.getElementById('np-prereq').value, pickup: document.getElementById('np-pickup').value, dropoff: document.getElementById('np-dropoff').value
             });
             saveDataToCloud();
+            renderDbContent(); 
+            renderApp(); 
         };
 
         window.exportToSheet = () => {
