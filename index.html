@@ -61,7 +61,6 @@
 </head>
 <body class="p-2 md:p-8">
 
-    <!-- Top Controls -->
     <div class="max-w-[1600px] mx-auto mb-6 flex flex-wrap gap-3 no-print justify-center md:justify-end items-center">
         <div id="sync-status" class="text-xs font-bold px-3 py-1 rounded-full bg-yellow-100 border-2 border-yellow-400 text-yellow-800 flex items-center gap-2">
             <span class="animate-pulse">●</span> Loading...
@@ -77,13 +76,10 @@
         </button>
     </div>
 
-    <!-- Main Canvas -->
     <div id="capture-area" class="max-w-[1600px] mx-auto p-4 md:p-10 bg-white main-border rounded-[2rem] md:rounded-[3rem] solid-shadow mb-10">
         
-        <!-- Header & Grand Filter -->
         <div class="mb-10 text-center flex flex-col items-center">
             
-            <!-- Filter View Container -->
             <div class="bg-rose-100 text-rose-900 border-2 border-black p-1.5 rounded-full font-black text-xs md:text-sm mb-5 solid-shadow-sm uppercase tracking-widest flex items-center gap-2 cursor-pointer transition-all" onclick="window.clearGlobalFilter(event)" title="Click to clear filters">
                 <span id="filter-hha" class="text-blue-600 hover:bg-blue-200 px-4 py-1.5 rounded-full transition-all" onclick="window.setGlobalFilter('Hha', event)">Hha (17th)</span> 
                 <span class="text-rose-400 text-lg mx-1 hover:scale-125 transition-transform">✖</span> 
@@ -98,7 +94,6 @@
             </p>
         </div>
 
-        <!-- Notification Banner for Week Start -->
         <div class="mb-8 bg-slate-100 border-2 border-black text-slate-900 p-4 rounded-xl font-bold flex flex-col md:flex-row justify-between items-center text-sm uppercase tracking-wider solid-shadow-sm gap-4">
             <div class="flex items-center gap-2">
                 <span>📅</span> Viewing Week Of: <span id="display-week-start" class="text-rose-600 bg-white px-2 py-1 rounded border border-black"></span>
@@ -106,34 +101,27 @@
             <div class="text-[10px] opacity-70">Exams and Events falling in this week are shown below.</div>
         </div>
 
-        <!-- Legend -->
         <div class="mb-10 bg-slate-50 p-6 rounded-[2rem] border-2 border-slate-200 border-dashed">
             <div id="legend-container" class="flex flex-wrap justify-center gap-4">
-                <!-- Generated dynamically -->
-            </div>
+                </div>
         </div>
         
-        <!-- Grid -->
         <div class="schedule-grid" id="grid-container">
-            <!-- Generated dynamically -->
-        </div>
+            </div>
 
     </div>
 
-    <!-- UPCOMING VIEWS (Exams & Events) -->
     <div class="max-w-[1600px] mx-auto bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] main-border solid-shadow mb-20 no-print">
         <h2 class="text-3xl font-black uppercase mb-8 border-b-4 border-black pb-2 flex items-center gap-3">
             <span>🚀</span> Upcoming Radar
         </h2>
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            <!-- Upcoming Exams -->
             <div>
                 <h3 class="text-xl font-black uppercase mb-6 text-amber-600 bg-amber-50 inline-block px-4 py-1 rounded-lg border-2 border-amber-200">⚠️ Exams</h3>
                 <div id="upcoming-exams-list" class="space-y-4"></div>
             </div>
             
-            <!-- Personal Events -->
             <div>
                 <h3 class="text-xl font-black uppercase mb-6 text-indigo-600 bg-indigo-50 inline-block px-4 py-1 rounded-lg border-2 border-indigo-200">📌 Personal Events</h3>
                 <div id="upcoming-personal-list" class="space-y-4"></div>
@@ -141,11 +129,9 @@
         </div>
     </div>
 
-    <!-- DATABASE MODAL -->
     <div id="db-modal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-2 md:p-6 no-print">
         <div class="bg-white w-full max-w-6xl h-[95vh] rounded-[2rem] border-4 border-black solid-shadow flex flex-col overflow-hidden relative">
             
-            <!-- Modal Header -->
             <div class="bg-black text-white p-4 md:p-6 flex justify-between items-center flex-shrink-0">
                 <div>
                     <h2 class="text-2xl font-black uppercase tracking-wider flex items-center gap-2"><span>💾</span> Master Database</h2>
@@ -154,9 +140,7 @@
                 <button onclick="window.closeDatabase()" class="text-white hover:text-rose-400 font-bold text-3xl leading-none">&times;</button>
             </div>
 
-            <!-- Modal Body -->
             <div class="flex flex-col md:flex-row flex-1 overflow-hidden">
-                <!-- Sidebar -->
                 <div class="w-full md:w-64 bg-slate-100 border-b-2 md:border-b-0 md:border-r-2 border-black p-4 flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto flex-shrink-0 hide-scrollbar">
                     <button onclick="window.switchTab('courses')" id="tab-courses" class="tab-btn active text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">📚 Uni Courses</button>
                     <button onclick="window.switchTab('tuitions')" id="tab-tuitions" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">🎒 Tuitions</button>
@@ -166,10 +150,8 @@
                     <button onclick="window.switchTab('personal')" id="tab-personal" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">📌 Personal</button>
                 </div>
 
-                <!-- Content Area -->
                 <div class="flex-1 p-4 md:p-8 overflow-y-auto bg-slate-50" id="db-content">
-                    <!-- Dynamic form content goes here -->
-                </div>
+                    </div>
             </div>
         </div>
     </div>
@@ -203,7 +185,6 @@
             { hex: "#fecdd3", name: "Rose" }, { hex: "#ffe4e6", name: "Pale Rose" }, { hex: "#fae8ff", name: "Fuchsia" }
         ];
         
-        // Pastel Colors for Tuitions (No Blues/Pinks)
         const pastelTuitionColors = [
             { hex: "#fef08a", name: "Pastel Yellow" },
             { hex: "#bbf7d0", name: "Pastel Mint" },
@@ -236,7 +217,12 @@
         if (savedLocalData) {
             try {
                 appData = JSON.parse(savedLocalData);
+                // Ensure legacy items have owners fallback
+                appData.tuitions.forEach(t => { if(!t.owner) t.owner = 'Hha'; });
+                appData.buses.forEach(b => { if(!b.owner) b.owner = 'Both'; });
                 if(!appData.personalEvents) appData.personalEvents = [];
+                appData.personalEvents.forEach(p => { if(!p.owner) p.owner = 'Both'; });
+
                 document.getElementById('sync-status').innerHTML = '<span class="text-blue-500">●</span> Loaded Locally';
                 document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-blue-50 border-2 border-blue-400 text-blue-800 flex items-center gap-2';
             } catch(e) { console.error("Local storage parse error", e); }
@@ -246,11 +232,12 @@
                 { id: "102", code: "ECO102", name: "Macroeconomics", room: "302", owner: "Ppita", color: "#fce7f3", sessions: [{day: "Sunday", timeLabel: "2:00-3:20"}] },
                 { id: "302", code: "ECO302", name: "Econometrics", room: "301", owner: "Hha", color: "#dbeafe", sessions: [{day: "Sunday", timeLabel: "11:00-12:20"}] }
             ];
+            appData.tuitions = [
+                { id: "Rajonno", classLevel: "Class 8", area: "Mogbazar", owner: "Hha", color: "#fef08a", sessions: [{day: "Sunday", timeLabel: "8:00-9:20"}] }
+            ];
             appData.buses = [
-                { id: "b1", name: "Hemonto", number: "12", time: "07:30 AM", trip: "Up", stop: "Campus" },
-                { id: "b2", name: "Hemonto", number: "12", time: "08:20 AM", trip: "Up", stop: "Campus" },
-                { id: "b3", name: "Hemonto", number: "12", time: "03:40 PM", trip: "Down", stop: "Campus" },
-                { id: "b4", name: "Hemonto", number: "12", time: "05:10 PM", trip: "Down", stop: "Campus" }
+                { id: "b1", name: "Hemonto", number: "12", time: "07:30 AM", trip: "Up", stop: "Campus", owner: "Both" },
+                { id: "b3", name: "Hemonto", number: "12", time: "03:40 PM", trip: "Down", stop: "Campus", owner: "Both" }
             ];
         }
 
@@ -290,6 +277,9 @@
                     appData = snapshot.data();
                     if(!appData.overrides) appData.overrides = { exams: [], extras: [], cancelledIds: [] };
                     if(!appData.personalEvents) appData.personalEvents = [];
+                    appData.tuitions.forEach(t => { if(!t.owner) t.owner = 'Hha'; });
+                    appData.buses.forEach(b => { if(!b.owner) b.owner = 'Both'; });
+                    appData.personalEvents.forEach(p => { if(!p.owner) p.owner = 'Both'; });
                     
                     localStorage.setItem('hhaPpitaUltimateData', JSON.stringify(appData));
                     
@@ -361,7 +351,7 @@
             if (isPM && h !== 12) h += 12;
             if (isAM && h === 12) h = 0;
             if (!isPM && !isAM) {
-                // Heuristic: 8, 9, 10, 11 AM; 1, 2, 3, 4, 5, 6, 7 PM
+                // Heuristic for am/pm if not provided
                 if (h >= 1 && h <= 7) h += 12;
             }
             return h * 60 + m;
@@ -406,7 +396,6 @@
             return { earliest, latest };
         }
 
-        // --- Core Date Utilities ---
         function getWeekDates(startDateStr) {
             const start = new Date(startDateStr);
             const dates = {};
@@ -441,11 +430,12 @@
                     </div>`;
             });
             appData.tuitions.forEach(t => {
-                if (window.globalOwnerFilter === 'Ppita') return; // Tuitions are Hha's
+                if (window.globalOwnerFilter !== 'All' && t.owner !== 'Both' && t.owner !== window.globalOwnerFilter) return;
+                const icon = t.owner === 'Hha' ? '👨‍💻' : (t.owner === 'Ppita' ? '🌸' : '👥');
                 container.innerHTML += `
                     <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border-2 border-black solid-shadow-sm">
                         <div class="w-4 h-4 rounded-md border border-black" style="background-color:${t.color}"></div>
-                        <span class="text-[10px] font-black uppercase tracking-tight">${t.id} <span class="opacity-40">(T)</span></span>
+                        <span class="text-[10px] font-black uppercase tracking-tight">${t.id} <span class="opacity-40">(${icon})</span></span>
                     </div>`;
             });
         }
@@ -459,34 +449,30 @@
                 return eventTime === timeLabel;
             };
 
-            // Courses
             appData.courses.forEach(c => {
                 if (appData.overrides.cancelledIds.includes(c.id)) return;
                 if (window.globalOwnerFilter !== 'All' && c.owner !== window.globalOwnerFilter) return;
                 c.sessions.forEach(s => { if (s.day === day && timeMatches(s.timeLabel)) events.push({ type: 'course', data: c, customTime: isCustomSlot ? s.timeLabel : null }); });
             });
 
-            // Tuitions
             appData.tuitions.forEach(t => {
                 if (appData.overrides.cancelledIds.includes(t.id)) return;
-                if (window.globalOwnerFilter === 'Ppita') return; // Only Hha has tuitions
+                if (window.globalOwnerFilter !== 'All' && t.owner !== 'Both' && t.owner !== window.globalOwnerFilter) return;
                 t.sessions.forEach(s => { if (s.day === day && timeMatches(s.timeLabel)) events.push({ type: 'tuition', data: t, customTime: isCustomSlot ? s.timeLabel : null }); });
             });
 
-            // Extras
             appData.overrides.extras.forEach(ex => {
                 if (window.globalOwnerFilter !== 'All' && ex.owner !== window.globalOwnerFilter) return;
                 if (ex.day === day && timeMatches(ex.timeLabel)) events.push({ type: 'extra', data: ex, customTime: isCustomSlot ? ex.timeLabel : null });
             });
 
-            // Exams
             appData.overrides.exams.forEach(ex => {
                 if (window.globalOwnerFilter !== 'All' && ex.owner !== window.globalOwnerFilter) return;
                 if (ex.date === weekDates[day] && timeMatches(ex.timeLabel)) events.push({ type: 'exam', data: ex, customTime: isCustomSlot ? ex.timeLabel : null });
             });
 
-            // Personal
             appData.personalEvents.forEach(pe => {
+                if (window.globalOwnerFilter !== 'All' && pe.owner !== 'Both' && pe.owner !== window.globalOwnerFilter) return;
                 if (pe.date === weekDates[day] && timeMatches(pe.timeLabel)) events.push({ type: 'personal', data: pe, customTime: isCustomSlot ? pe.timeLabel : null });
             });
 
@@ -510,7 +496,7 @@
             if (bounds.earliest === 9999) return `<div class="h-full w-full bg-slate-50 rounded-xl opacity-30 border-2 border-dashed border-slate-200 min-h-[60px]"></div>`;
 
             if (type === 'Arrival Bus') {
-                let validBuses = appData.buses.filter(b => b.trip === 'Up' && parseTimeToMinutes(b.time) <= bounds.earliest);
+                let validBuses = appData.buses.filter(b => b.trip === 'Up' && parseTimeToMinutes(b.time) <= bounds.earliest && (b.owner === 'Both' || window.globalOwnerFilter === 'All' || b.owner === window.globalOwnerFilter));
                 validBuses.sort((a,b) => parseTimeToMinutes(b.time) - parseTimeToMinutes(a.time)); 
                 let displayBuses = validBuses.slice(0, 3).reverse();
                 
@@ -523,7 +509,7 @@
                         ${busContent}
                     </div>`;
             } else {
-                let validBuses = appData.buses.filter(b => b.trip === 'Down' && parseTimeToMinutes(b.time) >= bounds.latest);
+                let validBuses = appData.buses.filter(b => b.trip === 'Down' && parseTimeToMinutes(b.time) >= bounds.latest && (b.owner === 'Both' || window.globalOwnerFilter === 'All' || b.owner === window.globalOwnerFilter));
                 validBuses.sort((a,b) => parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time));
                 let displayBuses = validBuses.slice(0, 3);
                 
@@ -671,11 +657,13 @@
                 </div>`;
             } else if (ev.type === 'tuition') {
                 const t = ev.data;
+                const ownerPill = t.owner === 'Both' ? '👥 Both' : (t.owner === 'Hha' ? '👨‍💻 Hha' : '🌸 Ppita');
                 return `
                 <div class="tuition-card solid-shadow-sm mb-2 relative" style="background-color:${t.color}">
                     ${timeBadge}
                     <span class="text-[11px] font-black uppercase tracking-widest text-black">${t.id}</span>
                     <span class="text-[7px] font-bold uppercase mt-1 text-black/70 bg-white/40 px-2 py-0.5 rounded-full mx-auto">${t.area}</span>
+                    <span class="text-[7px] font-bold absolute bottom-1 right-1 opacity-50 uppercase">${ownerPill}</span>
                 </div>`;
             } else if (ev.type === 'exam') {
                 return `
@@ -694,10 +682,14 @@
                 </div>`;
             } else if (ev.type === 'personal') {
                 const cat = personalCategories.find(c => c.id === ev.data.category);
+                const ownerPill = ev.data.owner === 'Both' ? '👥' : (ev.data.owner === 'Hha' ? '👨‍💻' : '🌸');
                 return `
                 <div class="event-card solid-shadow-sm mb-2 ${cat.color} relative border-2 border-inherit">
                     ${timeBadge}
-                    <div class="text-[10px] font-black uppercase border-b border-black/10 pb-1 flex gap-1 items-center"><span>${cat.icon}</span> ${cat.id}</div>
+                    <div class="text-[10px] font-black uppercase border-b border-black/10 pb-1 flex justify-between items-center">
+                        <span class="flex gap-1 items-center"><span>${cat.icon}</span> ${cat.id}</span>
+                        <span>${ownerPill}</span>
+                    </div>
                     <div class="text-[9px] font-bold mt-2 leading-tight">${ev.data.planner}</div>
                 </div>`;
             }
@@ -717,8 +709,9 @@
             document.getElementById('upcoming-exams-list').innerHTML = examHtml;
 
             const sortedPersonal = [...appData.personalEvents].sort((a,b) => new Date(a.date) - new Date(b.date));
-            const personalHtml = sortedPersonal.map(pe => {
+            const personalHtml = sortedPersonal.filter(p => window.globalOwnerFilter === 'All' || p.owner === 'Both' || p.owner === window.globalOwnerFilter).map(pe => {
                 const cat = personalCategories.find(c => c.id === pe.category);
+                const ownerPill = pe.owner === 'Both' ? 'Both' : pe.owner;
                 return `
                 <div class="${cat.color} p-4 rounded-xl border-2 border-inherit flex flex-col gap-3 solid-shadow-sm hover-lift transition-all">
                     <div class="flex justify-between items-start border-b border-black/10 pb-2">
@@ -726,7 +719,10 @@
                             <div class="font-black text-lg uppercase flex items-center gap-2"><span>${cat.icon}</span> ${pe.planner}</div>
                             <div class="text-sm font-bold opacity-80 mt-1">${pe.date} | ${pe.timeLabel}</div>
                         </div>
-                        <span class="text-xs font-black uppercase bg-white/50 px-2 py-1 rounded border border-black/20">${pe.category}</span>
+                        <div class="flex flex-col items-end gap-1">
+                            <span class="text-[10px] font-black uppercase bg-white/50 px-2 py-0.5 rounded border border-black/20">${pe.category}</span>
+                            <span class="text-[9px] font-bold uppercase opacity-60">${ownerPill}</span>
+                        </div>
                     </div>
                     ${pe.todo ? `<div class="text-sm"><strong>To-Do:</strong> <span class="opacity-90">${pe.todo}</span></div>` : ''}
                     ${pe.prereq ? `<div class="text-sm"><strong>Prereq:</strong> <span class="opacity-90">${pe.prereq}</span></div>` : ''}
@@ -819,13 +815,13 @@
                 </div>`;
             } 
             else if (activeTab === 'tuitions') {
-                html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2">Tuitions (Hha)</h3>`;
+                html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2">Tuitions</h3>`;
                 appData.tuitions.forEach((t, index) => {
                     html += `<div class="bg-white p-4 rounded-xl border-2 border-black mb-4 flex justify-between items-center solid-shadow-sm hover-lift">
                         <div class="flex items-center gap-4">
                             <div class="w-8 h-8 rounded-md border-2 border-black" style="background-color:${t.color}"></div>
                             <div>
-                                <div class="font-bold uppercase">${t.id} <span class="text-xs bg-slate-200 px-2 py-0.5 rounded ml-2">${t.classLevel}</span></div>
+                                <div class="font-bold uppercase">${t.id} <span class="text-xs bg-slate-200 px-2 py-0.5 rounded ml-2">${t.classLevel}</span> <span class="text-[10px] uppercase font-black opacity-50 ml-2">(${t.owner})</span></div>
                                 <div class="text-xs text-slate-500 mt-1">${t.area} | ${t.sessions.map(s => s.day.substring(0,3) + ' ' + s.timeLabel).join(', ')}</div>
                             </div>
                         </div>
@@ -840,6 +836,9 @@
                         <input id="nt-name" type="text" placeholder="Student Name" class="p-2 border-2 border-black rounded font-bold">
                         <input id="nt-class" type="text" placeholder="Class / Level" class="p-2 border-2 border-black rounded">
                         <input id="nt-area" type="text" placeholder="Area" class="p-2 border-2 border-black rounded">
+                        <select id="nt-owner" class="p-2 border-2 border-black rounded font-bold">
+                            <option value="Hha">Hha</option><option value="Ppita">Ppita</option><option value="Both">Both</option>
+                        </select>
                         <select id="nt-color" class="p-2 border-2 border-black rounded font-bold">
                             ${pastelTuitionColors.map(c => `<option value="${c.hex}">${c.name}</option>`).join('')}
                         </select>
@@ -856,7 +855,7 @@
                 appData.buses.forEach((b, index) => {
                     html += `<div class="bg-white p-4 rounded-xl border-2 border-black mb-4 flex justify-between items-center solid-shadow-sm hover-lift">
                         <div>
-                            <div class="font-bold uppercase">${b.name} (${b.number}) <span class="text-xs ${b.trip==='Up'?'bg-emerald-100 text-emerald-800':'bg-rose-100 text-rose-800'} border border-black px-2 py-0.5 rounded ml-2">${b.trip}</span></div>
+                            <div class="font-bold uppercase">${b.name} (${b.number}) <span class="text-xs ${b.trip==='Up'?'bg-emerald-100 text-emerald-800':'bg-rose-100 text-rose-800'} border border-black px-2 py-0.5 rounded ml-2">${b.trip}</span> <span class="text-[10px] uppercase font-black opacity-50 ml-2">(${b.owner})</span></div>
                             <div class="text-xs text-slate-500 mt-1">Time: ${b.time} | Stop: ${b.stop}</div>
                         </div>
                         <button onclick="window.deleteItem('buses', ${index})" class="text-red-500 font-bold hover:bg-red-50 p-2 rounded">Delete</button>
@@ -871,8 +870,11 @@
                         <input id="nb-number" type="text" placeholder="Bus Number" class="p-2 border-2 border-black rounded">
                         ${generateTimeDropdownHTML('nb')}
                         <input id="nb-stop" type="text" placeholder="Bus Stop" class="p-2 border-2 border-black rounded">
-                        <select id="nb-trip" class="p-2 border-2 border-black rounded col-span-1 md:col-span-2">
+                        <select id="nb-trip" class="p-2 border-2 border-black rounded">
                             <option value="Up">Up (To Campus)</option><option value="Down">Down (From Campus)</option>
+                        </select>
+                        <select id="nb-owner" class="p-2 border-2 border-black rounded font-bold">
+                            <option value="Both">Both (Shared)</option><option value="Hha">Hha Only</option><option value="Ppita">Ppita Only</option>
                         </select>
                     </div>
                     <button onclick="window.addBus()" class="mt-6 w-full bg-black text-white px-4 py-3 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest">Add Bus</button>
@@ -926,15 +928,18 @@
             else if (activeTab === 'personal') {
                 html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2 text-indigo-600">Personal Scheduler (Date Based)</h3><div class="space-y-2 mb-8">`;
                 appData.personalEvents.forEach((pe, idx) => {
-                    html += `<div class="flex justify-between bg-indigo-50 border-2 border-indigo-200 p-3 rounded-lg solid-shadow-sm"><div><div class="font-black text-sm text-indigo-900 uppercase">📌 ${pe.planner}</div><div class="text-xs font-bold text-indigo-700">${pe.date} | ${pe.timeLabel} (${pe.category})</div></div><button onclick="window.deleteOverride('personalEvents', ${idx})" class="text-red-500 font-bold">Delete</button></div>`;
+                    html += `<div class="flex justify-between bg-indigo-50 border-2 border-indigo-200 p-3 rounded-lg solid-shadow-sm"><div><div class="font-black text-sm text-indigo-900 uppercase">📌 ${pe.planner} <span class="text-[10px] uppercase font-black opacity-50 ml-1">(${pe.owner})</span></div><div class="text-xs font-bold text-indigo-700">${pe.date} | ${pe.timeLabel} (${pe.category})</div></div><button onclick="window.deleteOverride('personalEvents', ${idx})" class="text-red-500 font-bold">Delete</button></div>`;
                 });
                 html += `</div><div class="bg-indigo-100 p-6 rounded-xl border-2 border-black border-dashed mt-6">
                     <h4 class="font-bold uppercase mb-4 text-indigo-900">Add New Personal Event</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input id="np-date" type="date" class="p-2 border-2 border-black rounded font-bold">
                         ${generateTimeDropdownHTML('np')}
-                        <select id="np-category" class="p-2 border-2 border-black rounded col-span-1 md:col-span-2">
+                        <select id="np-category" class="p-2 border-2 border-black rounded">
                             ${personalCategories.map(c => `<option value="${c.id}">${c.icon} ${c.id}</option>`).join('')}
+                        </select>
+                        <select id="np-owner" class="p-2 border-2 border-black rounded font-bold">
+                            <option value="Both">Both (Shared)</option><option value="Hha">Hha Only</option><option value="Ppita">Ppita Only</option>
                         </select>
                         <input id="np-planner" type="text" placeholder="Event Name / Planner Title" class="p-2 border-2 border-black rounded font-bold col-span-1 md:col-span-2">
                         <textarea id="np-todo" placeholder="To-Do List (Optional)" class="p-2 border-2 border-black rounded col-span-1 md:col-span-2" rows="2"></textarea>
@@ -973,7 +978,7 @@
             const name = document.getElementById('nt-name').value;
             if(!name) return alert("Name required");
             appData.tuitions.push({
-                id: name, classLevel: document.getElementById('nt-class').value || "-", area: document.getElementById('nt-area').value || "-",
+                id: name, classLevel: document.getElementById('nt-class').value || "-", area: document.getElementById('nt-area').value || "-", owner: document.getElementById('nt-owner').value,
                 color: document.getElementById('nt-color').value, sessions: [{ day: document.getElementById('nt-day').value, timeLabel: getFinalTimeValue('nt') }]
             });
             saveDataToCloud();
@@ -984,7 +989,7 @@
             if(!name) return alert("Name required");
             appData.buses.push({
                 id: Date.now().toString(), name, number: document.getElementById('nb-number').value || "-",
-                time: getFinalTimeValue('nb'), stop: document.getElementById('nb-stop').value || "-", trip: document.getElementById('nb-trip').value
+                time: getFinalTimeValue('nb'), stop: document.getElementById('nb-stop').value || "-", trip: document.getElementById('nb-trip').value, owner: document.getElementById('nb-owner').value
             });
             saveDataToCloud();
         };
@@ -1010,7 +1015,7 @@
         window.addPersonalEvent = () => {
             const date = document.getElementById('np-date').value; if(!date) return alert("Date required");
             appData.personalEvents.push({
-                date, timeLabel: getFinalTimeValue('np'), category: document.getElementById('np-category').value,
+                date, timeLabel: getFinalTimeValue('np'), category: document.getElementById('np-category').value, owner: document.getElementById('np-owner').value,
                 planner: document.getElementById('np-planner').value || "New Event", todo: document.getElementById('np-todo').value,
                 prereq: document.getElementById('np-prereq').value, pickup: document.getElementById('np-pickup').value, dropoff: document.getElementById('np-dropoff').value
             });
@@ -1020,7 +1025,9 @@
         window.exportToSheet = () => {
             let csv = "Type,ID,Name/Code,Owner/Level,Area/Room,Day/Date,Time\n";
             appData.courses.forEach(c => c.sessions.forEach(s => csv += `Course,${c.id},${c.code},${c.owner},${c.room},${s.day},${s.timeLabel}\n`));
-            appData.personalEvents.forEach(pe => csv += `Personal,${pe.category},${pe.planner},,,${pe.date},${pe.timeLabel}\n`);
+            appData.tuitions.forEach(t => t.sessions.forEach(s => csv += `Tuition,${t.id},${t.id},${t.owner},${t.area},${s.day},${s.timeLabel}\n`));
+            appData.buses.forEach(b => csv += `Bus,${b.id},${b.name},${b.owner},${b.stop},-,${b.time}\n`);
+            appData.personalEvents.forEach(pe => csv += `Personal,${pe.category},${pe.planner},${pe.owner},,${pe.date},${pe.timeLabel}\n`);
             const a = document.createElement('a'); a.href = window.URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = `Ultimate_Schedule.csv`; a.click();
         };
 
