@@ -44,23 +44,23 @@
         }
         @media (min-width: 768px) { .sq-btn { width: 5.5rem; height: 5.5rem; font-size: 0.75rem; border-radius: 1.25rem; } }
 
-        /* Fixed Side Navs */
-        .fixed-nav-right { position: fixed; right: 0.5rem; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 0.75rem; z-index: 40; }
-        .fixed-nav-left { position: fixed; left: 0.5rem; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 0.5rem; z-index: 40; }
+        /* Fixed Side Navs - Made smaller and closer to edge */
+        .fixed-nav-right { position: fixed; right: 0.25rem; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 0.5rem; z-index: 40; }
+        .fixed-nav-left { position: fixed; left: 0.25rem; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 0.4rem; z-index: 40; }
         
         @media (min-width: 768px) { 
-            .fixed-nav-right { right: 1rem; gap: 1rem; } 
-            .fixed-nav-left { left: 1rem; gap: 0.75rem; } 
+            .fixed-nav-right { right: 0.5rem; gap: 0.5rem; } 
+            .fixed-nav-left { left: 0.5rem; gap: 0.5rem; } 
         }
         
-        .nav-btn { width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 2px solid #000; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; box-shadow: 2px 2px 0px 0px rgba(0,0,0,1); background: white; transition: all 0.2s; cursor: pointer; }
+        .nav-btn { width: 2rem; height: 2rem; border-radius: 50%; border: 2px solid #000; display: flex; align-items: center; justify-content: center; font-size: 1rem; box-shadow: 2px 2px 0px 0px rgba(0,0,0,1); background: white; transition: all 0.2s; cursor: pointer; }
         .nav-btn:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0px 0px rgba(0,0,0,1); }
-        .nav-btn-day { width: 2rem; height: 2rem; border-radius: 0.5rem; border: 2px solid #000; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 900; box-shadow: 2px 2px 0px 0px rgba(0,0,0,1); background: white; transition: all 0.2s; cursor: pointer; color: #000; }
+        .nav-btn-day { width: 1.75rem; height: 1.75rem; border-radius: 0.5rem; border: 2px solid #000; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 900; box-shadow: 2px 2px 0px 0px rgba(0,0,0,1); background: white; transition: all 0.2s; cursor: pointer; color: #000; }
         .nav-btn-day:hover { transform: translate(-2px, -2px); box-shadow: 4px 4px 0px 0px rgba(0,0,0,1); background: #fbcfe8; }
         
         @media (min-width: 768px) { 
-            .nav-btn { width: 3rem; height: 3rem; font-size: 1.5rem; } 
-            .nav-btn-day { width: 2.5rem; height: 2.5rem; font-size: 1rem; } 
+            .nav-btn { width: 2.25rem; height: 2.25rem; font-size: 1.1rem; } 
+            .nav-btn-day { width: 2rem; height: 2rem; font-size: 0.85rem; } 
         }
 
         /* Elements */
@@ -324,7 +324,7 @@
         // Global State & Filters
         window.globalOwnerFilter = 'All'; 
         window.globalDayFilter = 'All'; 
-        window.globalCourseFilter = 'All';
+        window.globalCourseFilter = 'All'; // Stores course code or tuition ID
 
         let appData = {
             courses: [], tuitions: [], buses: [],
@@ -474,19 +474,17 @@
             renderApp();
         };
 
-        window.setCourseFilter = (courseId) => {
-            window.globalCourseFilter = window.globalCourseFilter === courseId ? 'All' : courseId;
+        window.setCourseFilter = (courseCode) => {
+            window.globalCourseFilter = window.globalCourseFilter === courseCode ? 'All' : courseCode;
             renderApp();
         };
 
         window.jumpToDay = (day) => {
-            // Un-filter if currently filtered so we can scroll to the correct day in the full list
             if (window.globalDayFilter !== 'All') {
                 window.globalDayFilter = 'All';
                 renderApp();
             }
             
-            // Short timeout to allow the DOM to render the full grid before scrolling
             setTimeout(() => {
                 if (day === 'All') {
                     document.getElementById('capture-area').scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -595,19 +593,27 @@
             appData.courses.forEach(c => {
                 if (isDateInPL(weekDates[day])) return;
                 if (ownerFilter !== 'All' && c.owner !== ownerFilter) return;
-                if (window.globalCourseFilter !== 'All' && c.id !== window.globalCourseFilter) return;
+                if (window.globalCourseFilter !== 'All' && c.code !== window.globalCourseFilter) return;
                 c.sessions.forEach(s => { 
                     if (s.day === day && !isClassCancelled(c.id, s.day, s.timeLabel)) checkAndSet(s.timeLabel); 
                 });
             });
 
+            appData.tuitions.forEach(t => {
+                if (ownerFilter !== 'All' && t.owner !== 'Both' && t.owner !== ownerFilter) return;
+                if (window.globalCourseFilter !== 'All' && t.id !== window.globalCourseFilter) return;
+                t.sessions.forEach(s => { if (s.day === day) checkAndSet(s.timeLabel); });
+            });
+
             appData.overrides.extras.forEach(ex => {
                 if (ownerFilter !== 'All' && ex.owner !== ownerFilter) return;
+                if (window.globalCourseFilter !== 'All' && ex.courseCode !== window.globalCourseFilter) return;
                 if (ex.day === day) checkAndSet(ex.timeLabel);
             });
 
             appData.overrides.exams.forEach(ex => {
                 if (ownerFilter !== 'All' && ex.owner !== ownerFilter) return;
+                if (window.globalCourseFilter !== 'All' && ex.courseCode !== window.globalCourseFilter) return;
                 if (ex.date === weekDates[day]) checkAndSet(ex.timeLabel);
             });
 
@@ -642,21 +648,11 @@
                 else plBanner.classList.add('hidden');
             }
 
-            renderDayFilters();
             renderLegend();
             renderGrid(weekDates);
             renderUpcomingView();
             renderBusDirectory();
             renderMainOverridesAndTuitions();
-        }
-
-        function renderDayFilters() {
-            const container = document.getElementById('day-filter-container');
-            container.innerHTML = `<button onclick="window.setDayFilter('All'); document.getElementById('capture-area').scrollIntoView()" class="filter-pill px-4 py-1.5 bg-white border-2 border-slate-300 rounded-xl text-xs font-bold ${window.globalDayFilter === 'All' ? 'active' : ''}">All Days</button>`;
-            daysOfWeek.forEach(day => {
-                const short = day.substring(0,3);
-                container.innerHTML += `<button onclick="window.setDayFilter('${day}'); document.getElementById('capture-area').scrollIntoView()" class="filter-pill px-4 py-1.5 bg-white border-2 border-slate-300 rounded-xl text-xs font-bold ${window.globalDayFilter === day ? 'active' : ''}">${short}</button>`;
-            });
         }
 
         function renderLegend() {
@@ -666,13 +662,13 @@
             const seenCourses = new Set();
             appData.courses.forEach(c => {
                 if (window.globalOwnerFilter !== 'All' && c.owner !== window.globalOwnerFilter) return;
-                if (seenCourses.has(c.id)) return;
-                seenCourses.add(c.id);
+                if (seenCourses.has(c.code)) return; // Group by course code
+                seenCourses.add(c.code);
                 
                 const icon = c.owner === 'Hha' ? '👨‍💻' : '🌸';
-                const isActive = window.globalCourseFilter === c.id;
+                const isActive = window.globalCourseFilter === c.code;
                 container.innerHTML += `
-                    <button onclick="window.setCourseFilter('${c.id}')" class="filter-pill ${isActive ? 'active' : ''} flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border-2 border-black solid-shadow-sm hover:scale-105 transition-transform">
+                    <button onclick="window.setCourseFilter('${c.code}')" class="filter-pill ${isActive ? 'active' : ''} flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border-2 border-black solid-shadow-sm hover:scale-105 transition-transform">
                         <div class="w-4 h-4 rounded-full border border-black flex items-center justify-center text-[8px]" style="background-color:${c.color}">${icon}</div>
                         <span class="text-[10px] font-black uppercase tracking-tight text-left leading-tight">${c.name} <span class="opacity-40">(${c.owner})</span></span>
                     </button>`;
@@ -701,7 +697,7 @@
             appData.courses.forEach(c => {
                 if (isDateInPL(weekDates[day])) return;
                 if (window.globalOwnerFilter !== 'All' && c.owner !== window.globalOwnerFilter) return;
-                if (window.globalCourseFilter !== 'All' && c.id !== window.globalCourseFilter) return;
+                if (window.globalCourseFilter !== 'All' && c.code !== window.globalCourseFilter) return;
                 c.sessions.forEach(s => { 
                     if (s.day === day && timeMatches(s.timeLabel) && !isClassCancelled(c.id, s.day, s.timeLabel)) {
                         events.push({ type: 'course', data: c }); 
@@ -717,13 +713,13 @@
 
             appData.overrides.extras.forEach(ex => {
                 if (window.globalOwnerFilter !== 'All' && ex.owner !== window.globalOwnerFilter) return;
-                if (window.globalCourseFilter !== 'All' && ex.courseId !== window.globalCourseFilter) return;
+                if (window.globalCourseFilter !== 'All' && ex.courseCode !== window.globalCourseFilter) return;
                 if (ex.day === day && timeMatches(ex.timeLabel)) events.push({ type: 'extra', data: ex });
             });
 
             appData.overrides.exams.forEach(ex => {
                 if (window.globalOwnerFilter !== 'All' && ex.owner !== window.globalOwnerFilter) return;
-                if (window.globalCourseFilter !== 'All' && ex.courseId !== window.globalCourseFilter) return;
+                if (window.globalCourseFilter !== 'All' && ex.courseCode !== window.globalCourseFilter) return;
                 if (ex.date === weekDates[day] && timeMatches(ex.timeLabel)) events.push({ type: 'exam', data: ex });
             });
 
@@ -797,7 +793,7 @@
 
             appData.courses.forEach(c => {
                 if (isDateInPL(weekDates[day])) return;
-                if (window.globalCourseFilter !== 'All' && c.id !== window.globalCourseFilter) return;
+                if (window.globalCourseFilter !== 'All' && c.code !== window.globalCourseFilter) return;
                 c.sessions.forEach(s => {
                     if (s.day === day && !isClassCancelled(c.id, s.day, s.timeLabel)) {
                         if (c.owner === 'Hha') hhaHasClass = true;
@@ -808,7 +804,7 @@
 
             appData.overrides.exams.forEach(ex => {
                 if (ex.date === weekDates[day]) {
-                    if (window.globalCourseFilter !== 'All' && ex.courseId !== window.globalCourseFilter) return;
+                    if (window.globalCourseFilter !== 'All' && ex.courseCode !== window.globalCourseFilter) return;
                     if (ex.owner === 'Hha') hhaHasClass = true;
                     if (ex.owner === 'Ppita') ppitaHasClass = true;
                 }
@@ -940,14 +936,11 @@
         }
 
         function generateCardHtml(ev, isMobile = false) {
-            const timeBadge = ev.customTime ? `<div class="absolute -top-2 -right-2 bg-black text-white text-[7px] px-1.5 py-0.5 rounded font-black transform rotate-6 border border-white z-10 solid-shadow-sm">${ev.customTime}</div>` : '';
-            
             if (ev.type === 'course') {
                 const c = ev.data;
                 const ownerColor = c.owner === 'Hha' ? 'text-blue-900' : 'text-pink-900';
                 return `
                 <div class="event-card solid-shadow-sm mb-2 hover-lift" style="background-color:${c.color}">
-                    ${timeBadge}
                     <div class="text-[10px] font-black text-center text-slate-900 uppercase tracking-wide border-b border-black/10 pb-1 mb-1 break-words">${c.code}</div>
                     <div class="flex-grow flex items-center justify-center text-center px-1"><div class="text-[9px] font-extrabold uppercase leading-tight text-slate-800 break-words">${c.name}</div></div>
                     <div class="flex justify-between items-end mt-2 gap-1 flex-wrap">
@@ -960,7 +953,6 @@
                 const ownerPill = t.owner === 'Both' ? '👥 Both' : (t.owner === 'Hha' ? '👨‍💻 Hha' : '🌸 Ppita');
                 return `
                 <div class="tuition-card solid-shadow-sm mb-2 relative flex flex-col justify-center gap-1 hover-lift" style="background-color:${t.color}">
-                    ${timeBadge}
                     <span class="text-[11px] font-black uppercase tracking-widest text-black break-words">${t.id}</span>
                     <span class="text-[7px] font-bold uppercase text-black/70 bg-white/40 px-2 py-0.5 rounded-full mx-auto break-words max-w-[90%] text-center leading-tight">${t.area}</span>
                     <span class="text-[7px] font-bold absolute bottom-1 right-1 opacity-50 uppercase bg-white/50 px-1 rounded">${ownerPill}</span>
@@ -968,7 +960,6 @@
             } else if (ev.type === 'exam') {
                 return `
                 <div class="event-card solid-shadow-sm mb-2 bg-amber-100 border-amber-600 text-amber-900 relative hover-lift">
-                    ${timeBadge}
                     <div class="text-[10px] font-black text-center uppercase border-b border-amber-200 pb-1">⚠️ EXAM: ${ev.data.courseCode}</div>
                     <div class="text-[9px] font-bold text-center mt-2">${ev.data.examName}</div>
                     <div class="text-[8px] font-black text-right mt-2">${ev.data.owner}</div>
@@ -976,7 +967,6 @@
             } else if (ev.type === 'extra') {
                 return `
                 <div class="event-card solid-shadow-sm mb-2 bg-emerald-100 border-emerald-600 text-emerald-900 relative hover-lift">
-                    ${timeBadge}
                     <div class="text-[10px] font-black text-center uppercase border-b border-emerald-200 pb-1">➕ EXTRA: ${ev.data.courseCode}</div>
                     <div class="text-[8px] font-black text-right mt-4">${ev.data.owner}</div>
                 </div>`;
@@ -985,7 +975,6 @@
                 const ownerPill = ev.data.owner === 'Both' ? '👥' : (ev.data.owner === 'Hha' ? '👨‍💻' : '🌸');
                 return `
                 <div class="event-card solid-shadow-sm mb-2 ${cat.color} relative border-2 border-inherit hover-lift">
-                    ${timeBadge}
                     <div class="text-[10px] font-black uppercase border-b border-black/10 pb-1 flex justify-between items-center">
                         <span class="flex gap-1 items-center"><span>${cat.icon}</span> ${cat.id}</span>
                         <span>${ownerPill}</span>
