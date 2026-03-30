@@ -68,7 +68,10 @@
         </div>
         
         <button onclick="window.manualSyncToGoogleSheet()" class="bg-blue-500 text-white border-2 border-black px-5 py-2.5 rounded-xl text-sm font-bold solid-shadow hover-lift transition-all flex items-center gap-2">
-            <span>💾</span> Sync to Sheet
+            <span>📤</span> Save to Sheet
+        </button>
+        <button onclick="window.importFromGoogleSheet()" class="bg-purple-500 text-white border-2 border-black px-5 py-2.5 rounded-xl text-sm font-bold solid-shadow hover-lift transition-all flex items-center gap-2">
+            <span>📥</span> Import from Sheet
         </button>
         <button onclick="window.openDatabase()" class="bg-black text-white border-2 border-black px-5 py-2.5 rounded-xl text-sm font-bold solid-shadow hover-lift transition-all flex items-center gap-2">
             <span>🛠️</span> Edit Master Database
@@ -370,6 +373,39 @@
                 console.log("Webhook sync failed", e);
                 document.getElementById('sync-status').innerHTML = '<span class="text-red-500">●</span> Sync Error';
                 document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-red-50 border-2 border-red-400 text-red-800 flex items-center gap-2';
+            });
+        };
+
+        window.importFromGoogleSheet = () => {
+            if (!GOOGLE_SCRIPT_WEB_APP_URL) {
+                alert("Please ensure GOOGLE_SCRIPT_WEB_APP_URL is set in the code.");
+                return; 
+            }
+            if (!confirm("Warning: Importing will overwrite your current schedule with the latest data from the Cloud Sheet. Continue?")) return;
+
+            document.getElementById('sync-status').innerHTML = '<span class="text-purple-500 animate-spin">↻</span> Importing...';
+            document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-purple-50 border-2 border-purple-400 text-purple-800 flex items-center gap-2';
+            
+            fetch(GOOGLE_SCRIPT_WEB_APP_URL)
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.data) {
+                    appData = data.data;
+                    saveDataToCloud(); // Save locally & to Firebase
+                    renderApp();
+                    if(document.getElementById('db-modal').classList.contains('hidden') === false) renderDbContent();
+                    
+                    document.getElementById('sync-status').innerHTML = '<span class="text-emerald-500">●</span> Import Success';
+                    document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 border-2 border-emerald-400 text-emerald-800 flex items-center gap-2';
+                } else {
+                    throw new Error("Invalid data format received.");
+                }
+            })
+            .catch(e => {
+                console.log("Import failed", e);
+                document.getElementById('sync-status').innerHTML = '<span class="text-red-500">●</span> Import Error';
+                document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-red-50 border-2 border-red-400 text-red-800 flex items-center gap-2';
+                alert("Import failed. Make sure you updated the Google Apps Script to support doGet(). Check console for details.");
             });
         };
 
