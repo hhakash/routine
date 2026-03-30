@@ -66,8 +66,12 @@
         <div id="sync-status" class="text-xs font-bold px-3 py-1 rounded-full bg-yellow-100 border-2 border-yellow-400 text-yellow-800 flex items-center gap-2">
             <span class="animate-pulse">●</span> Loading...
         </div>
+        
+        <button onclick="window.manualSyncToGoogleSheet()" class="bg-blue-500 text-white border-2 border-black px-5 py-2.5 rounded-xl text-sm font-bold solid-shadow hover-lift transition-all flex items-center gap-2">
+            <span>💾</span> Sync to Sheet
+        </button>
         <button onclick="window.openDatabase()" class="bg-black text-white border-2 border-black px-5 py-2.5 rounded-xl text-sm font-bold solid-shadow hover-lift transition-all flex items-center gap-2">
-            <span>💾</span> Edit Master Database
+            <span>🛠️</span> Edit Master Database
         </button>
         <button onclick="window.exportToSheet()" class="bg-emerald-500 text-white border-2 border-black px-5 py-2.5 rounded-xl text-sm font-bold solid-shadow hover-lift transition-all flex items-center gap-2">
             <span>📊</span> Export CSV
@@ -339,9 +343,6 @@
             // Instantly save to local storage
             localStorage.setItem('hhaPpitaUltimateData', JSON.stringify(appData));
             
-            // Always trigger Google Sheet sync
-            autoSyncToGoogleSheet();
-
             if (!userId || !db) return;
             try {
                 const docRef = doc(db, 'artifacts', appId, 'users', userId, 'ultimate_schedule', 'main');
@@ -349,16 +350,20 @@
             } catch (e) { console.error("Firebase save failed", e); }
         }
 
-        function autoSyncToGoogleSheet() {
-            if (!GOOGLE_SCRIPT_WEB_APP_URL) return; 
-            document.getElementById('sync-status').innerHTML = '<span class="text-amber-500 animate-spin">↻</span> Syncing...';
+        window.manualSyncToGoogleSheet = () => {
+            if (!GOOGLE_SCRIPT_WEB_APP_URL) {
+                alert("Please ensure GOOGLE_SCRIPT_WEB_APP_URL is set in the code.");
+                return; 
+            }
+            document.getElementById('sync-status').innerHTML = '<span class="text-blue-500 animate-spin">↻</span> Syncing to Sheet...';
+            document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-blue-50 border-2 border-blue-400 text-blue-800 flex items-center gap-2';
             
             fetch(GOOGLE_SCRIPT_WEB_APP_URL, {
                 method: "POST", mode: "no-cors", headers: { "Content-Type": "text/plain;charset=utf-8" },
                 body: JSON.stringify({ timestamp: new Date().toISOString(), data: appData })
             }).then(() => {
                 setTimeout(() => {
-                    document.getElementById('sync-status').innerHTML = '<span class="text-emerald-500">●</span> Cloud Synced';
+                    document.getElementById('sync-status').innerHTML = '<span class="text-emerald-500">●</span> Sheet Synced';
                     document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 border-2 border-emerald-400 text-emerald-800 flex items-center gap-2';
                 }, 1000);
             }).catch(e => {
@@ -366,7 +371,7 @@
                 document.getElementById('sync-status').innerHTML = '<span class="text-red-500">●</span> Sync Error';
                 document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-red-50 border-2 border-red-400 text-red-800 flex items-center gap-2';
             });
-        }
+        };
 
         // --- Grand Filter Logic ---
         window.setGlobalFilter = (owner, event) => {
@@ -405,7 +410,6 @@
             if (isPM && h !== 12) h += 12;
             if (isAM && h === 12) h = 0;
             if (!isPM && !isAM) {
-                // Heuristic for am/pm if not provided
                 if (h >= 1 && h <= 7) h += 12;
             }
             return h * 60 + m;
@@ -477,8 +481,13 @@
         function renderLegend() {
             const container = document.getElementById('legend-container');
             container.innerHTML = '';
+            
+            const seenCourses = new Set();
             appData.courses.forEach(c => {
                 if (window.globalOwnerFilter !== 'All' && c.owner !== window.globalOwnerFilter) return;
+                if (seenCourses.has(c.code)) return;
+                seenCourses.add(c.code);
+                
                 const icon = c.owner === 'Hha' ? '👨‍💻' : '🌸';
                 container.innerHTML += `
                     <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border-2 border-black solid-shadow-sm">
@@ -486,8 +495,13 @@
                         <span class="text-[10px] font-black uppercase tracking-tight">${c.code} <span class="opacity-40">(${c.owner})</span></span>
                     </div>`;
             });
+            
+            const seenTuitions = new Set();
             appData.tuitions.forEach(t => {
                 if (window.globalOwnerFilter !== 'All' && t.owner !== 'Both' && t.owner !== window.globalOwnerFilter) return;
+                if (seenTuitions.has(t.id)) return;
+                seenTuitions.add(t.id);
+                
                 const icon = t.owner === 'Hha' ? '👨‍💻' : (t.owner === 'Ppita' ? '🌸' : '👥');
                 container.innerHTML += `
                     <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border-2 border-black solid-shadow-sm">
@@ -861,7 +875,7 @@
 
         function renderDbContent() {
             const content = document.getElementById('db-content');
-            let html = `<div class="max-w-5xl mx-auto pb-20">`; // Widened slightly for spreadsheets
+            let html = `<div class="max-w-5xl mx-auto pb-20">`; 
 
             if (activeTab === 'raw') {
                 html += `<div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-6 border-b-2 border-black pb-4 gap-4">
@@ -872,7 +886,7 @@
                             <button onclick="window.saveSpreadsheetData()" class="bg-purple-600 text-white px-6 py-2.5 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest solid-shadow-sm whitespace-nowrap">Save Spreadsheet</button>
                          </div>`;
                 
-                // Add Global Overrides Section
+                // Global Overrides Section
                 html += `<div class="bg-purple-50 p-4 rounded-xl border-2 border-purple-300 mb-6 solid-shadow-sm grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
                                 <label class="text-[10px] font-black uppercase text-purple-800">Current Week Start Date</label>
@@ -1043,20 +1057,36 @@
                 
                 <div class="mb-8"><h4 class="font-black uppercase mb-4 bg-black text-white px-4 py-1 inline-block rounded">1. Cancel Classes</h4>
                 <div class="flex flex-wrap gap-3">`;
+                
+                const seenCancel = new Set();
                 appData.courses.forEach(c => {
-                    const isCancelled = appData.overrides.cancelledIds.includes(c.id);
-                    html += `<button onclick="window.toggleCancel('${c.id}')" class="px-4 py-2 text-sm font-black border-2 border-black rounded-lg solid-shadow-sm hover-lift ${isCancelled ? 'bg-red-500 text-white' : 'bg-white text-black'}">${c.code} ${isCancelled ? '❌' : '✅'}</button>`;
+                    if (seenCancel.has(c.code)) return;
+                    seenCancel.add(c.code);
+                    
+                    const isCancelled = appData.courses.filter(cx => cx.code === c.code).some(cx => appData.overrides.cancelledIds.includes(cx.id));
+                    html += `<button onclick="window.toggleCancel('${c.code}')" class="px-4 py-2 text-sm font-black border-2 border-black rounded-lg solid-shadow-sm hover-lift ${isCancelled ? 'bg-red-500 text-white' : 'bg-white text-black'}">${c.code} ${isCancelled ? '❌' : '✅'}</button>`;
                 });
+                
                 html += `</div></div>
                 <div class="mb-8 border-t-2 border-black pt-8"><h4 class="font-black uppercase mb-4 bg-emerald-600 text-white px-4 py-1 inline-block rounded">2. Extra Classes</h4>
                     <div class="space-y-2 mb-6">`;
                     appData.overrides.extras.forEach((ex, idx) => {
                         html += `<div class="flex justify-between bg-emerald-50 border-2 border-emerald-200 p-2 rounded-lg"><span class="font-bold text-sm">➕ ${ex.courseCode} - ${ex.day} ${ex.timeLabel}</span><button onclick="window.deleteOverride('extras', ${idx})" class="text-red-500 font-bold hover:bg-red-50 px-2 rounded">&times; Remove</button></div>`;
                     });
+                
+                let uniqueCoursesOptions = '';
+                const seenSelect = new Set();
+                appData.courses.forEach(c => {
+                    if(!seenSelect.has(c.code)) {
+                        seenSelect.add(c.code);
+                        uniqueCoursesOptions += `<option value="${c.id}|${c.code}|${c.owner}">${c.code} (${c.owner})</option>`;
+                    }
+                });
+
                 html += `</div>
                     <div class="bg-emerald-50 p-6 rounded-xl border-2 border-emerald-600 border-dashed">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <select id="nxt-course" class="p-2 border-2 border-black rounded font-bold">${appData.courses.map(c => `<option value="${c.id}|${c.code}|${c.owner}">${c.code} (${c.owner})</option>`).join('')}</select>
+                            <select id="nxt-course" class="p-2 border-2 border-black rounded font-bold">${uniqueCoursesOptions}</select>
                             <select id="nxt-day" class="p-2 border-2 border-black rounded">${daysOfWeek.map(d => `<option value="${d}">${d}</option>`).join('')}</select>
                             ${generateTimeDropdownHTML('nxt')}
                         </div>
@@ -1068,11 +1098,21 @@
                 appData.overrides.exams.forEach((ex, idx) => {
                     html += `<div class="flex justify-between bg-amber-50 border-2 border-amber-200 p-3 rounded-lg solid-shadow-sm"><div><div class="font-black text-sm text-amber-900 uppercase">⚠️ ${ex.courseCode}: ${ex.examName}</div><div class="text-xs font-bold text-amber-700">${ex.date} | ${ex.timeLabel} (${ex.owner})</div></div><button onclick="window.deleteOverride('exams', ${idx})" class="text-red-500 font-bold hover:bg-red-50 px-2 rounded">Delete</button></div>`;
                 });
+
+                let uniqueCoursesOptions = '';
+                const seenSelect = new Set();
+                appData.courses.forEach(c => {
+                    if(!seenSelect.has(c.code)) {
+                        seenSelect.add(c.code);
+                        uniqueCoursesOptions += `<option value="${c.id}|${c.code}|${c.owner}">${c.code} (${c.owner})</option>`;
+                    }
+                });
+
                 html += `</div><div class="bg-amber-100 p-6 rounded-xl border-2 border-black border-dashed mt-6">
                     <h4 class="font-bold uppercase mb-4 text-amber-900">Schedule New Exam</h4>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input id="nx-name" type="text" placeholder="Exam Name (e.g. Midterm 1)" class="p-2 border-2 border-black rounded font-bold">
-                        <select id="nx-course" class="p-2 border-2 border-black rounded font-bold">${appData.courses.map(c => `<option value="${c.id}|${c.code}|${c.owner}">${c.code} (${c.owner})</option>`).join('')}</select>
+                        <select id="nx-course" class="p-2 border-2 border-black rounded font-bold">${uniqueCoursesOptions}</select>
                         <input id="nx-date" type="date" class="p-2 border-2 border-black rounded font-bold">
                         ${generateTimeDropdownHTML('nx')}
                     </div>
@@ -1123,7 +1163,6 @@
                             let val = input.value.trim();
                             if (val) hasData = true;
                             
-                            // Safe JSON parsing specifically for sessions arrays
                             if (key === 'sessions' && (val.startsWith('[') || val.startsWith('{'))) {
                                 try { val = JSON.parse(val); } catch(e) {}
                             }
@@ -1131,7 +1170,6 @@
                         });
                         
                         if (hasData) {
-                            // Enforce sessions array format for courses/tuitions
                             if ((id === 'courses' || id === 'tuitions') && !Array.isArray(obj.sessions)) {
                                 obj.sessions = typeof obj.sessions === 'string' && obj.sessions ? [{ day: "Sunday", timeLabel: obj.sessions }] : [];
                             }
@@ -1148,7 +1186,6 @@
                 appData.overrides.extras = extractData('extras');
                 appData.personalEvents = extractData('personal');
                 
-                // Extract global overrides
                 appData.overrides.currentWeekStart = document.getElementById('ss-week-start').value;
                 const cancelledRaw = document.getElementById('ss-cancelled').value;
                 appData.overrides.cancelledIds = cancelledRaw ? cancelledRaw.split(',').map(s => s.trim()).filter(s => s) : [];
@@ -1156,7 +1193,6 @@
                 saveDataToCloud();
                 renderDbContent();
                 renderApp();
-                alert("Spreadsheet database successfully updated!");
             } catch (e) {
                 alert("Error saving spreadsheet: " + e.message);
             }
@@ -1228,10 +1264,22 @@
             renderApp();
         };
         
-        window.toggleCancel = (id) => { 
-            const idx = appData.overrides.cancelledIds.indexOf(id); 
-            if (idx > -1) appData.overrides.cancelledIds.splice(idx, 1); 
-            else appData.overrides.cancelledIds.push(id); 
+        window.toggleCancel = (code) => { 
+            const matchingCourses = appData.courses.filter(c => c.code === code);
+            const isCancelled = matchingCourses.some(c => appData.overrides.cancelledIds.includes(c.id));
+            
+            if (isCancelled) {
+                matchingCourses.forEach(c => {
+                    const idx = appData.overrides.cancelledIds.indexOf(c.id);
+                    if (idx > -1) appData.overrides.cancelledIds.splice(idx, 1);
+                });
+            } else {
+                matchingCourses.forEach(c => {
+                    if (!appData.overrides.cancelledIds.includes(c.id)) {
+                        appData.overrides.cancelledIds.push(c.id);
+                    }
+                });
+            }
             saveDataToCloud(); 
             renderDbContent(); 
             renderApp(); 
