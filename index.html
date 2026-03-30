@@ -1,0 +1,1031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hha & Ppita - Ultimate Routine & Planner</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Poppins', sans-serif; background-color: #fdf2f8; color: #000; overflow-x: hidden; }
+        
+        /* Neo-Brutalist Tokens */
+        .main-border { border: 3px solid #000; }
+        .solid-shadow { box-shadow: 4px 4px 0px 0px rgba(0,0,0,1); }
+        .solid-shadow-sm { box-shadow: 2px 2px 0px 0px rgba(0,0,0,1); }
+        .hover-lift:hover { transform: translate(-2px, -2px); box-shadow: 6px 6px 0px 0px rgba(0,0,0,1); }
+        
+        /* Layout Grids */
+        @media (min-width: 768px) {
+            .schedule-grid { display: grid; grid-template-columns: 90px repeat(7, 1fr); gap: 0.75rem; }
+        }
+        @media (max-width: 767px) {
+            .schedule-grid { display: block; }
+            .mobile-day { margin-bottom: 3rem; position: relative; }
+            .mobile-day-title { 
+                background: #000; color: #fff; padding: 0.75rem; border-radius: 1rem; 
+                margin-bottom: 1rem; font-weight: 900; text-align: center; text-transform: uppercase; letter-spacing: 0.1em; 
+                position: sticky; top: 10px; z-index: 20; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 2px solid #333;
+            }
+            .mobile-row { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; align-items: stretch; }
+            .time-col { flex: 0 0 90px; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: 800; text-align: center; background: #fce7f3; border-radius: 0.75rem; border: 2px solid #000; padding: 0.5rem; line-height: 1.2; box-shadow: 2px 2px 0px 0px rgba(0,0,0,1); }
+            .card-col { flex: 1; display: flex; flex-direction: column; gap: 0.5rem; }
+        }
+
+        /* Elements */
+        .event-card { min-height: 100px; border-radius: 1rem; border: 2px solid #000; display: flex; flex-direction: column; justify-content: space-between; padding: 0.75rem 0.5rem; position: relative; overflow: hidden; }
+        .tuition-card { border: 2px solid #000; border-radius: 0.75rem; padding: 0.5rem; text-align: center; display: flex; flex-direction: column; justify-content: center; min-height: 80px; }
+        .love-time-card { background: repeating-linear-gradient(45deg, #fbcfe8, #fbcfe8 10px, #fce7f3 10px, #fce7f3 20px); border: 2px solid #e11d48; color: #9f1239; }
+
+        /* Modal */
+        #db-modal { backdrop-filter: blur(5px); }
+        .tab-btn.active { background-color: #000; color: #fff; }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; border: 1px solid #000; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+        
+        /* Hidden Scrollbar for mobile swiping */
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; padding: 0 !important; }
+            #capture-area { border: none !important; box-shadow: none !important; width: 100% !important; max-width: 100% !important; padding: 0 !important; }
+        }
+    </style>
+</head>
+<body class="p-2 md:p-8">
+
+    <!-- Top Controls -->
+    <div class="max-w-[1600px] mx-auto mb-6 flex flex-wrap gap-3 no-print justify-center md:justify-end items-center">
+        <div id="sync-status" class="text-xs font-bold px-3 py-1 rounded-full bg-yellow-100 border-2 border-yellow-400 text-yellow-800 flex items-center gap-2">
+            <span class="animate-pulse">●</span> Loading...
+        </div>
+        <button onclick="window.openDatabase()" class="bg-black text-white border-2 border-black px-5 py-2.5 rounded-xl text-sm font-bold solid-shadow hover-lift transition-all flex items-center gap-2">
+            <span>💾</span> Edit Master Database
+        </button>
+        <button onclick="window.exportToSheet()" class="bg-emerald-500 text-white border-2 border-black px-5 py-2.5 rounded-xl text-sm font-bold solid-shadow hover-lift transition-all flex items-center gap-2">
+            <span>📊</span> Export CSV
+        </button>
+        <button onclick="window.print()" class="bg-white text-black border-2 border-black px-5 py-2.5 rounded-xl text-sm font-bold solid-shadow hover-lift transition-all">
+            🖨️ Print
+        </button>
+    </div>
+
+    <!-- Main Canvas -->
+    <div id="capture-area" class="max-w-[1600px] mx-auto p-4 md:p-10 bg-white main-border rounded-[2rem] md:rounded-[3rem] solid-shadow mb-10">
+        
+        <!-- Header & Grand Filter -->
+        <div class="mb-10 text-center flex flex-col items-center">
+            
+            <!-- Filter View Container -->
+            <div class="bg-rose-100 text-rose-900 border-2 border-black p-1.5 rounded-full font-black text-xs md:text-sm mb-5 solid-shadow-sm uppercase tracking-widest flex items-center gap-2 cursor-pointer transition-all" onclick="window.clearGlobalFilter(event)" title="Click to clear filters">
+                <span id="filter-hha" class="text-blue-600 hover:bg-blue-200 px-4 py-1.5 rounded-full transition-all" onclick="window.setGlobalFilter('Hha', event)">Hha (17th)</span> 
+                <span class="text-rose-400 text-lg mx-1 hover:scale-125 transition-transform">✖</span> 
+                <span id="filter-ppita" class="text-pink-600 hover:bg-pink-200 px-4 py-1.5 rounded-full transition-all" onclick="window.setGlobalFilter('Ppita', event)">Ppita (19th)</span>
+            </div>
+
+            <h1 class="text-4xl md:text-7xl font-black uppercase tracking-tighter flex items-center justify-center gap-2 md:gap-4 mb-2">
+                Ultimate <span class="text-rose-500 animate-pulse">❤</span> Planner
+            </h1>
+            <p class="text-[10px] md:text-xs font-extrabold text-slate-500 uppercase tracking-[0.4em] mt-2 border-b-2 border-slate-200 pb-4 inline-block">
+                Schedule • Exams • Events • Love Time
+            </p>
+        </div>
+
+        <!-- Notification Banner for Week Start -->
+        <div class="mb-8 bg-slate-100 border-2 border-black text-slate-900 p-4 rounded-xl font-bold flex flex-col md:flex-row justify-between items-center text-sm uppercase tracking-wider solid-shadow-sm gap-4">
+            <div class="flex items-center gap-2">
+                <span>📅</span> Viewing Week Of: <span id="display-week-start" class="text-rose-600 bg-white px-2 py-1 rounded border border-black"></span>
+            </div>
+            <div class="text-[10px] opacity-70">Exams and Events falling in this week are shown below.</div>
+        </div>
+
+        <!-- Legend -->
+        <div class="mb-10 bg-slate-50 p-6 rounded-[2rem] border-2 border-slate-200 border-dashed">
+            <div id="legend-container" class="flex flex-wrap justify-center gap-4">
+                <!-- Generated dynamically -->
+            </div>
+        </div>
+        
+        <!-- Grid -->
+        <div class="schedule-grid" id="grid-container">
+            <!-- Generated dynamically -->
+        </div>
+
+    </div>
+
+    <!-- UPCOMING VIEWS (Exams & Events) -->
+    <div class="max-w-[1600px] mx-auto bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] main-border solid-shadow mb-20 no-print">
+        <h2 class="text-3xl font-black uppercase mb-8 border-b-4 border-black pb-2 flex items-center gap-3">
+            <span>🚀</span> Upcoming Radar
+        </h2>
+        
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+            <!-- Upcoming Exams -->
+            <div>
+                <h3 class="text-xl font-black uppercase mb-6 text-amber-600 bg-amber-50 inline-block px-4 py-1 rounded-lg border-2 border-amber-200">⚠️ Exams</h3>
+                <div id="upcoming-exams-list" class="space-y-4"></div>
+            </div>
+            
+            <!-- Personal Events -->
+            <div>
+                <h3 class="text-xl font-black uppercase mb-6 text-indigo-600 bg-indigo-50 inline-block px-4 py-1 rounded-lg border-2 border-indigo-200">📌 Personal Events</h3>
+                <div id="upcoming-personal-list" class="space-y-4"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- DATABASE MODAL -->
+    <div id="db-modal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-2 md:p-6 no-print">
+        <div class="bg-white w-full max-w-6xl h-[95vh] rounded-[2rem] border-4 border-black solid-shadow flex flex-col overflow-hidden relative">
+            
+            <!-- Modal Header -->
+            <div class="bg-black text-white p-4 md:p-6 flex justify-between items-center flex-shrink-0">
+                <div>
+                    <h2 class="text-2xl font-black uppercase tracking-wider flex items-center gap-2"><span>💾</span> Master Database</h2>
+                    <p class="text-xs text-rose-300 font-bold mt-1">Real-time edits automatically sync to the cloud & local storage.</p>
+                </div>
+                <button onclick="window.closeDatabase()" class="text-white hover:text-rose-400 font-bold text-3xl leading-none">&times;</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex flex-col md:flex-row flex-1 overflow-hidden">
+                <!-- Sidebar -->
+                <div class="w-full md:w-64 bg-slate-100 border-b-2 md:border-b-0 md:border-r-2 border-black p-4 flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto flex-shrink-0 hide-scrollbar">
+                    <button onclick="window.switchTab('courses')" id="tab-courses" class="tab-btn active text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">📚 Uni Courses</button>
+                    <button onclick="window.switchTab('tuitions')" id="tab-tuitions" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">🎒 Tuitions</button>
+                    <button onclick="window.switchTab('buses')" id="tab-buses" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">🚌 Bus Fleet</button>
+                    <button onclick="window.switchTab('weekly')" id="tab-weekly" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">📅 Week Overrides</button>
+                    <button onclick="window.switchTab('exams')" id="tab-exams" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">📝 Exams</button>
+                    <button onclick="window.switchTab('personal')" id="tab-personal" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">📌 Personal</button>
+                </div>
+
+                <!-- Content Area -->
+                <div class="flex-1 p-4 md:p-8 overflow-y-auto bg-slate-50" id="db-content">
+                    <!-- Dynamic form content goes here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const GOOGLE_SCRIPT_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw_ml7uDAvp3_ZZ_8Iyd3RJY1ozFDCF7c5kKpHZ6JngKa0tqYAR--usG314lqnnWp-uGw/exec"; 
+
+        // Core Timings & Data Structures
+        const daysOfWeek = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+        
+        const standardTimes = ["8:00-9:20", "9:30-10:50", "11:00-12:20", "12:30-1:50", "2:00-3:20", "3:30-4:50"];
+        
+        const timeBlocks = [
+            { label: "Arrival Bus", value: "Arrival Bus", special: "bus_up" }
+        ];
+        standardTimes.forEach(t => timeBlocks.push({ label: t, value: t, special: false }));
+        timeBlocks.push({ label: "Love Time", value: "Love Time", special: "love" });
+        timeBlocks.push({ label: "Return Bus", value: "Return Bus", special: "bus_down" });
+        timeBlocks.push({ label: "Custom Timings", value: "Custom Timings", special: "custom" }); 
+
+        const hhaColors = [
+            { hex: "#dbeafe", name: "Light Blue" }, { hex: "#bfdbfe", name: "Blue" },
+            { hex: "#bae6fd", name: "Sky" }, { hex: "#e0f2fe", name: "Pale Sky" }, { hex: "#ccfbf1", name: "Teal" }
+        ];
+        const ppitaColors = [
+            { hex: "#fce7f3", name: "Light Pink" }, { hex: "#fbcfe8", name: "Pink" },
+            { hex: "#fecdd3", name: "Rose" }, { hex: "#ffe4e6", name: "Pale Rose" }, { hex: "#fae8ff", name: "Fuchsia" }
+        ];
+        
+        // Pastel Colors for Tuitions (No Blues/Pinks)
+        const pastelTuitionColors = [
+            { hex: "#fef08a", name: "Pastel Yellow" },
+            { hex: "#bbf7d0", name: "Pastel Mint" },
+            { hex: "#fed7aa", name: "Pastel Peach" },
+            { hex: "#e9d5ff", name: "Pastel Lavender" },
+            { hex: "#99f6e4", name: "Pastel Teal" },
+            { hex: "#d9f99d", name: "Pastel Lime" },
+            { hex: "#e5e7eb", name: "Pastel Silver" }
+        ];
+
+        const personalCategories = [
+            { id: "Chores", icon: "🧹", color: "bg-slate-200 border-slate-500 text-slate-800" },
+            { id: "Work", icon: "💼", color: "bg-blue-100 border-blue-500 text-blue-900" },
+            { id: "Clubbing", icon: "🪩", color: "bg-purple-100 border-purple-500 text-purple-900" },
+            { id: "Competition", icon: "🏆", color: "bg-orange-100 border-orange-500 text-orange-900" },
+            { id: "Misc", icon: "📌", color: "bg-teal-100 border-teal-500 text-teal-900" }
+        ];
+
+        // Global State & Filters
+        window.globalOwnerFilter = 'All'; // 'All', 'Hha', 'Ppita'
+
+        let appData = {
+            courses: [], tuitions: [], buses: [],
+            overrides: { currentWeekStart: new Date().toISOString().split('T')[0], exams: [], extras: [], cancelledIds: [] },
+            personalEvents: []
+        };
+
+        // --- LOCAL STORAGE: Fast Loading ---
+        const savedLocalData = localStorage.getItem('hhaPpitaUltimateData');
+        if (savedLocalData) {
+            try {
+                appData = JSON.parse(savedLocalData);
+                if(!appData.personalEvents) appData.personalEvents = [];
+                document.getElementById('sync-status').innerHTML = '<span class="text-blue-500">●</span> Loaded Locally';
+                document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-blue-50 border-2 border-blue-400 text-blue-800 flex items-center gap-2';
+            } catch(e) { console.error("Local storage parse error", e); }
+        } 
+        else if(appData.courses.length === 0) {
+            appData.courses = [
+                { id: "102", code: "ECO102", name: "Macroeconomics", room: "302", owner: "Ppita", color: "#fce7f3", sessions: [{day: "Sunday", timeLabel: "2:00-3:20"}] },
+                { id: "302", code: "ECO302", name: "Econometrics", room: "301", owner: "Hha", color: "#dbeafe", sessions: [{day: "Sunday", timeLabel: "11:00-12:20"}] }
+            ];
+            appData.buses = [
+                { id: "b1", name: "Hemonto", number: "12", time: "07:30 AM", trip: "Up", stop: "Campus" },
+                { id: "b2", name: "Hemonto", number: "12", time: "08:20 AM", trip: "Up", stop: "Campus" },
+                { id: "b3", name: "Hemonto", number: "12", time: "03:40 PM", trip: "Down", stop: "Campus" },
+                { id: "b4", name: "Hemonto", number: "12", time: "05:10 PM", trip: "Down", stop: "Campus" }
+            ];
+        }
+
+        let db, auth, userId, appId;
+
+        try {
+            const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+            const app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+            appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+            
+            const initAuth = async () => {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) await signInWithCustomToken(auth, __initial_auth_token);
+                else await signInAnonymously(auth);
+            };
+
+            onAuthStateChanged(auth, (user) => {
+                if (user) { userId = user.uid; listenToData(); } 
+                else {
+                    document.getElementById('sync-status').innerText = 'Offline Mode';
+                    document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-red-100 border-2 border-red-400 text-red-800';
+                }
+            });
+            initAuth();
+        } catch (e) {
+            console.warn("Firebase not loaded, using local memory.", e);
+            renderApp();
+        }
+
+        function listenToData() {
+            if (!userId || !db) return;
+            const docRef = doc(db, 'artifacts', appId, 'users', userId, 'ultimate_schedule', 'main');
+            
+            onSnapshot(docRef, (snapshot) => {
+                if (snapshot.exists()) {
+                    appData = snapshot.data();
+                    if(!appData.overrides) appData.overrides = { exams: [], extras: [], cancelledIds: [] };
+                    if(!appData.personalEvents) appData.personalEvents = [];
+                    
+                    localStorage.setItem('hhaPpitaUltimateData', JSON.stringify(appData));
+                    
+                    document.getElementById('sync-status').innerHTML = '<span class="text-emerald-500">●</span> Cloud Synced';
+                    document.getElementById('sync-status').className = 'text-xs font-bold px-3 py-1 rounded-full bg-emerald-50 border-2 border-emerald-400 text-emerald-800 flex items-center gap-2';
+                } else { saveDataToCloud(); }
+                renderApp();
+                if(document.getElementById('db-modal').classList.contains('hidden') === false) renderDbContent();
+            });
+        }
+
+        async function saveDataToCloud() {
+            localStorage.setItem('hhaPpitaUltimateData', JSON.stringify(appData));
+            if (!userId || !db) return;
+            try {
+                const docRef = doc(db, 'artifacts', appId, 'users', userId, 'ultimate_schedule', 'main');
+                await setDoc(docRef, appData);
+                autoSyncToGoogleSheet();
+            } catch (e) { console.error("Save failed", e); }
+        }
+
+        function autoSyncToGoogleSheet() {
+            if (!GOOGLE_SCRIPT_WEB_APP_URL) return; 
+            document.getElementById('sync-status').innerHTML = '<span class="text-amber-500 animate-spin">↻</span> Syncing...';
+            fetch(GOOGLE_SCRIPT_WEB_APP_URL, {
+                method: "POST", mode: "no-cors", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ timestamp: new Date().toISOString(), data: appData })
+            }).then(() => {
+                setTimeout(() => {
+                    document.getElementById('sync-status').innerHTML = '<span class="text-emerald-500">●</span> Cloud Synced';
+                }, 1000);
+            }).catch(e => console.log("Webhook sync failed", e));
+        }
+
+        // --- Grand Filter Logic ---
+        window.setGlobalFilter = (owner, event) => {
+            event.stopPropagation();
+            window.globalOwnerFilter = owner;
+            updateFilterUI();
+            renderApp();
+        };
+
+        window.clearGlobalFilter = (event) => {
+            window.globalOwnerFilter = 'All';
+            updateFilterUI();
+            renderApp();
+        };
+
+        function updateFilterUI() {
+            const hhaBtn = document.getElementById('filter-hha');
+            const ppitaBtn = document.getElementById('filter-ppita');
+            
+            hhaBtn.className = `px-4 py-1.5 rounded-full transition-all ${window.globalOwnerFilter === 'Hha' ? 'bg-blue-600 text-white solid-shadow-sm scale-110' : 'text-blue-600 hover:bg-blue-200'}`;
+            ppitaBtn.className = `px-4 py-1.5 rounded-full transition-all ${window.globalOwnerFilter === 'Ppita' ? 'bg-pink-600 text-white solid-shadow-sm scale-110' : 'text-pink-600 hover:bg-pink-200'}`;
+        }
+
+        // --- Smart Time Parser ---
+        function parseTimeToMinutes(timeStr) {
+            if (!timeStr) return 0;
+            let match = timeStr.match(/(\d{1,2}):(\d{2})/);
+            if (!match) return 0;
+            let h = parseInt(match[1], 10);
+            let m = parseInt(match[2], 10);
+            
+            let lowerTime = timeStr.toLowerCase();
+            let isPM = lowerTime.includes('pm');
+            let isAM = lowerTime.includes('am');
+            
+            if (isPM && h !== 12) h += 12;
+            if (isAM && h === 12) h = 0;
+            if (!isPM && !isAM) {
+                // Heuristic: 8, 9, 10, 11 AM; 1, 2, 3, 4, 5, 6, 7 PM
+                if (h >= 1 && h <= 7) h += 12;
+            }
+            return h * 60 + m;
+        }
+
+        function formatMins(mins) {
+            let h = Math.floor(mins / 60);
+            let m = mins % 60;
+            if (h > 0 && m > 0) return `${h}h ${m}m`;
+            if (h > 0) return `${h}h`;
+            return `${m}m`;
+        }
+
+        function getDayTimeBounds(day, weekDates, ownerFilter) {
+            let earliest = 9999;
+            let latest = 0;
+            
+            const checkAndSet = (timeLabel) => {
+                let times = timeLabel.split('-');
+                let startMins = parseTimeToMinutes(times[0]);
+                let endMins = parseTimeToMinutes(times[1] || times[0]);
+                if (startMins < earliest && startMins > 0) earliest = startMins;
+                if (endMins > latest && endMins > 0) latest = endMins;
+            };
+
+            appData.courses.forEach(c => {
+                if (appData.overrides.cancelledIds.includes(c.id)) return;
+                if (ownerFilter !== 'All' && c.owner !== ownerFilter) return;
+                c.sessions.forEach(s => { if (s.day === day) checkAndSet(s.timeLabel); });
+            });
+
+            appData.overrides.extras.forEach(ex => {
+                if (ownerFilter !== 'All' && ex.owner !== ownerFilter) return;
+                if (ex.day === day) checkAndSet(ex.timeLabel);
+            });
+
+            appData.overrides.exams.forEach(ex => {
+                if (ownerFilter !== 'All' && ex.owner !== ownerFilter) return;
+                if (ex.date === weekDates[day]) checkAndSet(ex.timeLabel);
+            });
+
+            return { earliest, latest };
+        }
+
+        // --- Core Date Utilities ---
+        function getWeekDates(startDateStr) {
+            const start = new Date(startDateStr);
+            const dates = {};
+            daysOfWeek.forEach((day, index) => {
+                const d = new Date(start);
+                d.setDate(start.getDate() + index);
+                dates[day] = d.toISOString().split('T')[0];
+            });
+            return dates;
+        }
+
+        // --- Core Render Logic ---
+        function renderApp() {
+            document.getElementById('display-week-start').innerText = appData.overrides.currentWeekStart;
+            const weekDates = getWeekDates(appData.overrides.currentWeekStart);
+
+            renderLegend();
+            renderGrid(weekDates);
+            renderUpcomingView();
+        }
+
+        function renderLegend() {
+            const container = document.getElementById('legend-container');
+            container.innerHTML = '';
+            appData.courses.forEach(c => {
+                if (window.globalOwnerFilter !== 'All' && c.owner !== window.globalOwnerFilter) return;
+                const icon = c.owner === 'Hha' ? '👨‍💻' : '🌸';
+                container.innerHTML += `
+                    <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border-2 border-black solid-shadow-sm">
+                        <div class="w-4 h-4 rounded-full border border-black flex items-center justify-center text-[8px]" style="background-color:${c.color}">${icon}</div>
+                        <span class="text-[10px] font-black uppercase tracking-tight">${c.code} <span class="opacity-40">(${c.owner})</span></span>
+                    </div>`;
+            });
+            appData.tuitions.forEach(t => {
+                if (window.globalOwnerFilter === 'Ppita') return; // Tuitions are Hha's
+                container.innerHTML += `
+                    <div class="flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border-2 border-black solid-shadow-sm">
+                        <div class="w-4 h-4 rounded-md border border-black" style="background-color:${t.color}"></div>
+                        <span class="text-[10px] font-black uppercase tracking-tight">${t.id} <span class="opacity-40">(T)</span></span>
+                    </div>`;
+            });
+        }
+
+        function getEventsForSlot(day, timeLabel, weekDates) {
+            let events = [];
+            const isCustomSlot = timeLabel === "Custom Timings";
+            
+            const timeMatches = (eventTime) => {
+                if (isCustomSlot) return !standardTimes.includes(eventTime) && eventTime !== "Love Time" && eventTime !== "Arrival Bus" && eventTime !== "Return Bus";
+                return eventTime === timeLabel;
+            };
+
+            // Courses
+            appData.courses.forEach(c => {
+                if (appData.overrides.cancelledIds.includes(c.id)) return;
+                if (window.globalOwnerFilter !== 'All' && c.owner !== window.globalOwnerFilter) return;
+                c.sessions.forEach(s => { if (s.day === day && timeMatches(s.timeLabel)) events.push({ type: 'course', data: c, customTime: isCustomSlot ? s.timeLabel : null }); });
+            });
+
+            // Tuitions
+            appData.tuitions.forEach(t => {
+                if (appData.overrides.cancelledIds.includes(t.id)) return;
+                if (window.globalOwnerFilter === 'Ppita') return; // Only Hha has tuitions
+                t.sessions.forEach(s => { if (s.day === day && timeMatches(s.timeLabel)) events.push({ type: 'tuition', data: t, customTime: isCustomSlot ? s.timeLabel : null }); });
+            });
+
+            // Extras
+            appData.overrides.extras.forEach(ex => {
+                if (window.globalOwnerFilter !== 'All' && ex.owner !== window.globalOwnerFilter) return;
+                if (ex.day === day && timeMatches(ex.timeLabel)) events.push({ type: 'extra', data: ex, customTime: isCustomSlot ? ex.timeLabel : null });
+            });
+
+            // Exams
+            appData.overrides.exams.forEach(ex => {
+                if (window.globalOwnerFilter !== 'All' && ex.owner !== window.globalOwnerFilter) return;
+                if (ex.date === weekDates[day] && timeMatches(ex.timeLabel)) events.push({ type: 'exam', data: ex, customTime: isCustomSlot ? ex.timeLabel : null });
+            });
+
+            // Personal
+            appData.personalEvents.forEach(pe => {
+                if (pe.date === weekDates[day] && timeMatches(pe.timeLabel)) events.push({ type: 'personal', data: pe, customTime: isCustomSlot ? pe.timeLabel : null });
+            });
+
+            return events;
+        }
+
+        function generateBusHtml(day, weekDates, isMobile, type) {
+            let boundsHha = getDayTimeBounds(day, weekDates, 'Hha');
+            let boundsPpita = getDayTimeBounds(day, weekDates, 'Ppita');
+            
+            let bounds = { earliest: 9999, latest: 0 };
+            if (window.globalOwnerFilter === 'All') {
+                bounds.earliest = Math.min(boundsHha.earliest, boundsPpita.earliest);
+                bounds.latest = Math.max(boundsHha.latest, boundsPpita.latest);
+            } else if (window.globalOwnerFilter === 'Hha') {
+                bounds = boundsHha;
+            } else {
+                bounds = boundsPpita;
+            }
+
+            if (bounds.earliest === 9999) return `<div class="h-full w-full bg-slate-50 rounded-xl opacity-30 border-2 border-dashed border-slate-200 min-h-[60px]"></div>`;
+
+            if (type === 'Arrival Bus') {
+                let validBuses = appData.buses.filter(b => b.trip === 'Up' && parseTimeToMinutes(b.time) <= bounds.earliest);
+                validBuses.sort((a,b) => parseTimeToMinutes(b.time) - parseTimeToMinutes(a.time)); 
+                let displayBuses = validBuses.slice(0, 3).reverse();
+                
+                if (displayBuses.length === 0) return `<div class="h-full w-full bg-slate-50 rounded-xl opacity-30 border-2 border-dashed border-slate-200 min-h-[60px]"></div>`;
+
+                const busContent = displayBuses.map(b => `<div class="text-[8px] md:text-[9px] font-bold bg-white px-1.5 py-0.5 rounded border border-emerald-200 w-full text-center mb-0.5 text-emerald-900">${b.time}</div>`).join('');
+                return `
+                    <div class="h-full w-full bg-emerald-50 rounded-xl border-2 border-emerald-400 p-2 flex flex-col items-center justify-center solid-shadow-sm min-h-[60px]">
+                        <span class="text-[10px] font-black uppercase text-emerald-800 mb-1 tracking-widest flex items-center gap-1">🚌 IN</span>
+                        ${busContent}
+                    </div>`;
+            } else {
+                let validBuses = appData.buses.filter(b => b.trip === 'Down' && parseTimeToMinutes(b.time) >= bounds.latest);
+                validBuses.sort((a,b) => parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time));
+                let displayBuses = validBuses.slice(0, 3);
+                
+                if (displayBuses.length === 0) return `<div class="h-full w-full bg-slate-50 rounded-xl opacity-30 border-2 border-dashed border-slate-200 min-h-[60px]"></div>`;
+
+                const busContent = displayBuses.map(b => `<div class="text-[8px] md:text-[9px] font-bold bg-white px-1.5 py-0.5 rounded border border-rose-200 w-full text-center mb-0.5 text-rose-900">${b.time}</div>`).join('');
+                return `
+                    <div class="h-full w-full bg-rose-50 rounded-xl border-2 border-rose-400 p-2 flex flex-col items-center justify-center solid-shadow-sm min-h-[60px]">
+                        <span class="text-[10px] font-black uppercase text-rose-800 mb-1 tracking-widest flex items-center gap-1">🏠 OUT</span>
+                        ${busContent}
+                    </div>`;
+            }
+        }
+
+        function generateLoveTimeHtml(day, weekDates) {
+            if (window.globalOwnerFilter !== 'All') return `<div class="h-full w-full bg-slate-50 rounded-xl opacity-30 border-2 border-dashed border-slate-200 min-h-[100px]"></div>`;
+
+            let boundsHha = getDayTimeBounds(day, weekDates, 'Hha');
+            let boundsPpita = getDayTimeBounds(day, weekDates, 'Ppita');
+            
+            if (boundsHha.latest > 0 && boundsPpita.latest > 0) {
+                let diff = boundsHha.latest - boundsPpita.latest;
+                let waitStr = "";
+                if (diff > 0) waitStr = `Ppita waits ${formatMins(diff)}`;
+                else if (diff < 0) waitStr = `Hha waits ${formatMins(Math.abs(diff))}`;
+                else waitStr = `Perfect Sync 💕`;
+
+                let overallLatest = Math.max(boundsHha.latest, boundsPpita.latest);
+                let validBuses = appData.buses.filter(b => b.trip === 'Down' && parseTimeToMinutes(b.time) >= overallLatest);
+                validBuses.sort((a,b) => parseTimeToMinutes(a.time) - parseTimeToMinutes(b.time));
+                let busTime = validBuses.length > 0 ? validBuses[0].time : 'No Bus';
+
+                return `
+                    <div class="h-full w-full love-time-card rounded-xl solid-shadow flex flex-col items-center justify-center min-h-[100px] p-2 hover-lift transition-all cursor-default text-center">
+                        <div class="text-xl md:text-2xl animate-pulse drop-shadow-md">❤️</div>
+                        <div class="text-[8px] md:text-[9px] font-black uppercase mt-2 text-rose-800 tracking-wider">${waitStr}</div>
+                        <div class="text-[9px] md:text-[10px] font-black uppercase mt-1 bg-white/90 px-2 py-0.5 rounded border border-rose-300 text-rose-900 w-full whitespace-nowrap overflow-hidden text-ellipsis">Bus: ${busTime}</div>
+                    </div>`;
+            } else {
+                return `<div class="h-full w-full bg-slate-50 rounded-xl opacity-30 border-2 border-dashed border-slate-200 min-h-[100px]"></div>`;
+            }
+        }
+
+        function renderGrid(weekDates) {
+            const grid = document.getElementById('grid-container');
+            grid.innerHTML = '';
+            const isMobile = window.innerWidth < 768;
+
+            if (!isMobile) {
+                grid.appendChild(document.createElement('div')); 
+                daysOfWeek.forEach(d => {
+                    const h = document.createElement('div');
+                    h.className = "text-center flex flex-col items-center justify-center py-2";
+                    h.innerHTML = `<span class="font-black text-sm uppercase text-slate-400 tracking-widest">${d.substring(0, 3)}</span><span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 rounded-full mt-1">${weekDates[d].substring(5)}</span>`;
+                    grid.appendChild(h);
+                });
+
+                timeBlocks.forEach(block => {
+                    const sideLabel = document.createElement('div');
+                    sideLabel.className = `flex flex-col items-center justify-center text-[9px] font-black opacity-60 bg-slate-50 rounded-xl py-4 border-r-2 border-slate-200 border-dashed tracking-widest text-center px-1 ${block.special ? 'text-rose-600 bg-rose-50 border-rose-200' : 'text-slate-800'}`;
+                    sideLabel.innerHTML = block.label.replace('-', '<br>-<br>');
+                    grid.appendChild(sideLabel);
+
+                    daysOfWeek.forEach(day => {
+                        const cell = document.createElement('div');
+                        cell.className = "w-full h-full p-1";
+
+                        if (block.special === "bus_up" || block.special === "bus_down") {
+                            cell.innerHTML = generateBusHtml(day, weekDates, false, block.label);
+                        } else if (block.special === "love") {
+                            cell.innerHTML = generateLoveTimeHtml(day, weekDates);
+                        } else {
+                            const events = getEventsForSlot(day, block.label, weekDates);
+                            if (events.length === 0) {
+                                if (block.special === "custom") cell.innerHTML = ''; 
+                                else cell.innerHTML = `<div class="h-full w-full bg-slate-50 rounded-xl opacity-30 border-2 border-dashed border-slate-200 min-h-[100px]"></div>`;
+                            } else {
+                                cell.innerHTML = events.map(ev => generateCardHtml(ev)).join('');
+                            }
+                        }
+                        grid.appendChild(cell);
+                    });
+                });
+            } else {
+                daysOfWeek.forEach(day => {
+                    let hasEvents = false;
+                    let dayHtml = `<div class="mobile-day"><div class="mobile-day-title">${day} <span class="text-xs opacity-70 ml-2">(${weekDates[day]})</span></div>`;
+
+                    timeBlocks.forEach(block => {
+                        if (block.special === "bus_up" || block.special === "bus_down") {
+                            let busHtmlContent = generateBusHtml(day, weekDates, true, block.label);
+                            if (!busHtmlContent.includes('opacity-30')) {
+                                hasEvents = true;
+                                let colorClass = block.special === "bus_up" ? "!bg-emerald-500 !border-emerald-900" : "!bg-rose-500 !border-rose-900";
+                                let icon = block.special === "bus_up" ? "🚌 IN" : "🏠 OUT";
+                                dayHtml += `
+                                <div class="mobile-row mt-4 mb-4">
+                                    <div class="time-col ${colorClass} !text-white"><span class="text-xl">${icon.split(' ')[0]}</span><span class="text-[8px] mt-1 tracking-widest">${icon.split(' ')[1]}</span></div>
+                                    <div class="card-col">${busHtmlContent}</div>
+                                </div>`;
+                            }
+                        } else if (block.special === "love") {
+                            let loveHtmlContent = generateLoveTimeHtml(day, weekDates);
+                            if (!loveHtmlContent.includes('opacity-30')) {
+                                hasEvents = true;
+                                dayHtml += `
+                                <div class="mobile-row mt-6 mb-6">
+                                    <div class="time-col !bg-rose-500 !text-white !border-rose-900"><span class="text-xl">🚌❤️</span><span class="text-[8px] mt-1 tracking-widest">LOVE</span></div>
+                                    <div class="card-col">${loveHtmlContent}</div>
+                                </div>`;
+                            }
+                        } else {
+                            const events = getEventsForSlot(day, block.label, weekDates);
+                            if (events.length > 0) {
+                                hasEvents = true;
+                                dayHtml += `
+                                <div class="mobile-row">
+                                    <div class="time-col ${block.special==='custom'?'!bg-slate-800 !text-white':''}">${block.label.replace('-', '<br>-<br>')}</div>
+                                    <div class="card-col">${events.map(ev => generateCardHtml(ev, true)).join('')}</div>
+                                </div>`;
+                            }
+                        }
+                    });
+                    dayHtml += `</div>`;
+                    if (hasEvents) grid.innerHTML += dayHtml;
+                });
+            }
+        }
+
+        function generateCardHtml(ev, isMobile = false) {
+            const timeBadge = ev.customTime ? `<div class="absolute -top-2 -right-2 bg-black text-white text-[7px] px-1.5 py-0.5 rounded font-black transform rotate-6 border border-white z-10 solid-shadow-sm">${ev.customTime}</div>` : '';
+            
+            if (ev.type === 'course') {
+                const c = ev.data;
+                const ownerColor = c.owner === 'Hha' ? 'text-blue-900' : 'text-pink-900';
+                return `
+                <div class="event-card solid-shadow-sm mb-2" style="background-color:${c.color}">
+                    ${timeBadge}
+                    <div class="text-[10px] font-black text-center text-slate-900 uppercase tracking-wide border-b border-black/10 pb-1 mb-1">${c.code}</div>
+                    <div class="flex-grow flex items-center justify-center text-center px-1"><div class="text-[9px] font-extrabold uppercase leading-tight text-slate-800">${c.name}</div></div>
+                    <div class="flex justify-between items-end mt-2">
+                        <span class="text-[8px] font-black bg-white px-1.5 py-0.5 rounded border border-black/20 solid-shadow-sm">R: ${c.room}</span>
+                        <span class="text-[8px] font-black ${ownerColor} uppercase bg-white/50 px-1 rounded">${c.owner}</span>
+                    </div>
+                </div>`;
+            } else if (ev.type === 'tuition') {
+                const t = ev.data;
+                return `
+                <div class="tuition-card solid-shadow-sm mb-2 relative" style="background-color:${t.color}">
+                    ${timeBadge}
+                    <span class="text-[11px] font-black uppercase tracking-widest text-black">${t.id}</span>
+                    <span class="text-[7px] font-bold uppercase mt-1 text-black/70 bg-white/40 px-2 py-0.5 rounded-full mx-auto">${t.area}</span>
+                </div>`;
+            } else if (ev.type === 'exam') {
+                return `
+                <div class="event-card solid-shadow-sm mb-2 bg-amber-100 border-amber-600 text-amber-900 relative">
+                    ${timeBadge}
+                    <div class="text-[10px] font-black text-center uppercase border-b border-amber-200 pb-1">⚠️ EXAM: ${ev.data.courseCode}</div>
+                    <div class="text-[9px] font-bold text-center mt-2">${ev.data.examName}</div>
+                    <div class="text-[8px] font-black text-right mt-2">${ev.data.owner}</div>
+                </div>`;
+            } else if (ev.type === 'extra') {
+                return `
+                <div class="event-card solid-shadow-sm mb-2 bg-emerald-100 border-emerald-600 text-emerald-900 relative">
+                    ${timeBadge}
+                    <div class="text-[10px] font-black text-center uppercase border-b border-emerald-200 pb-1">➕ EXTRA: ${ev.data.courseCode}</div>
+                    <div class="text-[8px] font-black text-right mt-4">${ev.data.owner}</div>
+                </div>`;
+            } else if (ev.type === 'personal') {
+                const cat = personalCategories.find(c => c.id === ev.data.category);
+                return `
+                <div class="event-card solid-shadow-sm mb-2 ${cat.color} relative border-2 border-inherit">
+                    ${timeBadge}
+                    <div class="text-[10px] font-black uppercase border-b border-black/10 pb-1 flex gap-1 items-center"><span>${cat.icon}</span> ${cat.id}</div>
+                    <div class="text-[9px] font-bold mt-2 leading-tight">${ev.data.planner}</div>
+                </div>`;
+            }
+        }
+
+        // --- Upcoming View Logic ---
+        function renderUpcomingView() {
+            const sortedExams = [...appData.overrides.exams].sort((a,b) => new Date(a.date) - new Date(b.date));
+            const examHtml = sortedExams.filter(e => window.globalOwnerFilter === 'All' || e.owner === window.globalOwnerFilter).map(ex => `
+                <div class="bg-amber-50 border-2 border-amber-300 p-4 rounded-xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4 solid-shadow-sm hover-lift transition-all">
+                    <div>
+                        <div class="font-black text-amber-900 text-lg uppercase">${ex.courseCode}: ${ex.examName}</div>
+                        <div class="text-sm font-bold text-amber-700 mt-1">${ex.date} | ${ex.timeLabel}</div>
+                    </div>
+                    <div class="bg-amber-200 text-amber-900 font-black px-3 py-1 rounded-lg border-2 border-amber-400 text-sm">${ex.owner}</div>
+                </div>`).join('') || `<p class="text-slate-400 font-bold italic">No upcoming exams found for this view.</p>`;
+            document.getElementById('upcoming-exams-list').innerHTML = examHtml;
+
+            const sortedPersonal = [...appData.personalEvents].sort((a,b) => new Date(a.date) - new Date(b.date));
+            const personalHtml = sortedPersonal.map(pe => {
+                const cat = personalCategories.find(c => c.id === pe.category);
+                return `
+                <div class="${cat.color} p-4 rounded-xl border-2 border-inherit flex flex-col gap-3 solid-shadow-sm hover-lift transition-all">
+                    <div class="flex justify-between items-start border-b border-black/10 pb-2">
+                        <div>
+                            <div class="font-black text-lg uppercase flex items-center gap-2"><span>${cat.icon}</span> ${pe.planner}</div>
+                            <div class="text-sm font-bold opacity-80 mt-1">${pe.date} | ${pe.timeLabel}</div>
+                        </div>
+                        <span class="text-xs font-black uppercase bg-white/50 px-2 py-1 rounded border border-black/20">${pe.category}</span>
+                    </div>
+                    ${pe.todo ? `<div class="text-sm"><strong>To-Do:</strong> <span class="opacity-90">${pe.todo}</span></div>` : ''}
+                    ${pe.prereq ? `<div class="text-sm"><strong>Prereq:</strong> <span class="opacity-90">${pe.prereq}</span></div>` : ''}
+                    ${pe.pickup || pe.dropoff ? `
+                    <div class="flex flex-col md:flex-row gap-2 md:gap-4 mt-2 bg-white/40 p-2 rounded-lg border border-black/10">
+                        ${pe.pickup ? `<div class="text-xs"><strong>🚗 Pickup:</strong> ${pe.pickup}</div>` : ''}
+                        ${pe.dropoff ? `<div class="text-xs"><strong>📍 Drop:</strong> ${pe.dropoff}</div>` : ''}
+                    </div>` : ''}
+                </div>`;
+            }).join('') || `<p class="text-slate-400 font-bold italic">No personal events found.</p>`;
+            document.getElementById('upcoming-personal-list').innerHTML = personalHtml;
+        }
+
+        // --- Database UI Logic ---
+        let activeTab = 'courses';
+
+        window.openDatabase = () => { document.getElementById('db-modal').classList.remove('hidden'); window.switchTab(activeTab); };
+        window.closeDatabase = () => { document.getElementById('db-modal').classList.add('hidden'); };
+
+        window.switchTab = (tab) => {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active', 'bg-black', 'text-white'));
+            document.getElementById(`tab-${tab}`).classList.add('active', 'bg-black', 'text-white');
+            activeTab = tab;
+            renderDbContent();
+        };
+
+        window.handleTimeToggle = (selectId, inputId) => {
+            const val = document.getElementById(selectId).value;
+            const input = document.getElementById(inputId);
+            if(val === 'Custom') input.classList.remove('hidden'); else input.classList.add('hidden');
+        };
+
+        function generateTimeDropdownHTML(idPrefix) {
+            return `
+                <div class="flex flex-col gap-2">
+                    <select id="${idPrefix}-time" class="p-2 border-2 border-black rounded" onchange="window.handleTimeToggle('${idPrefix}-time', '${idPrefix}-time-custom')">
+                        ${standardTimes.map(t => `<option value="${t}">${t}</option>`).join('')}
+                        <option value="Custom">Custom...</option>
+                    </select>
+                    <input id="${idPrefix}-time-custom" type="text" placeholder="Type custom time (e.g. 10:15-11:15)" class="p-2 border-2 border-rose-500 rounded hidden bg-rose-50 font-bold">
+                </div>
+            `;
+        }
+
+        function getFinalTimeValue(idPrefix) {
+            const dropdown = document.getElementById(`${idPrefix}-time`).value;
+            if(dropdown === 'Custom') return document.getElementById(`${idPrefix}-time-custom`).value || 'TBA';
+            return dropdown;
+        }
+
+        function renderDbContent() {
+            const content = document.getElementById('db-content');
+            let html = `<div class="max-w-4xl mx-auto pb-20">`;
+
+            if (activeTab === 'courses') {
+                html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2">University Courses</h3>`;
+                appData.courses.forEach((c, index) => {
+                    html += `<div class="bg-white p-4 rounded-xl border-2 border-black mb-4 flex justify-between items-center solid-shadow-sm hover-lift">
+                        <div class="flex items-center gap-4">
+                            <div class="w-8 h-8 rounded-full border-2 border-black" style="background-color:${c.color}"></div>
+                            <div>
+                                <div class="font-bold uppercase">${c.code}: ${c.name} <span class="text-xs bg-slate-200 px-2 py-0.5 rounded ml-2">${c.owner}</span></div>
+                                <div class="text-xs text-slate-500 mt-1">Room ${c.room} | ${c.sessions.map(s => s.day.substring(0,3) + ' ' + s.timeLabel).join(', ')}</div>
+                            </div>
+                        </div>
+                        <button onclick="window.deleteItem('courses', ${index})" class="text-red-500 font-bold hover:bg-red-50 p-2 rounded">Delete</button>
+                    </div>`;
+                });
+                
+                html += `
+                <div class="bg-slate-200 p-6 rounded-xl border-2 border-black border-dashed mt-8">
+                    <h4 class="font-bold uppercase mb-4">Add New Course</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input id="nc-code" type="text" placeholder="Course Code (e.g. ECO201)" class="p-2 border-2 border-black rounded font-bold">
+                        <input id="nc-name" type="text" placeholder="Course Name" class="p-2 border-2 border-black rounded">
+                        <input id="nc-room" type="text" placeholder="Room No." class="p-2 border-2 border-black rounded">
+                        <select id="nc-owner" class="p-2 border-2 border-black rounded font-bold">
+                            <option value="Hha">Hha</option><option value="Ppita">Ppita</option>
+                        </select>
+                        <select id="nc-color" class="p-2 border-2 border-black rounded">
+                            ${hhaColors.map(c => `<option value="${c.hex}">Hha - ${c.name}</option>`).join('')}
+                            ${ppitaColors.map(c => `<option value="${c.hex}">Ppita - ${c.name}</option>`).join('')}
+                        </select>
+                        <select id="nc-day" class="p-2 border-2 border-black rounded">
+                            ${daysOfWeek.map(d => `<option value="${d}">${d}</option>`).join('')}
+                        </select>
+                        ${generateTimeDropdownHTML('nc')}
+                    </div>
+                    <button onclick="window.addCourse()" class="mt-6 w-full bg-black text-white px-4 py-3 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest">Add Course</button>
+                </div>`;
+            } 
+            else if (activeTab === 'tuitions') {
+                html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2">Tuitions (Hha)</h3>`;
+                appData.tuitions.forEach((t, index) => {
+                    html += `<div class="bg-white p-4 rounded-xl border-2 border-black mb-4 flex justify-between items-center solid-shadow-sm hover-lift">
+                        <div class="flex items-center gap-4">
+                            <div class="w-8 h-8 rounded-md border-2 border-black" style="background-color:${t.color}"></div>
+                            <div>
+                                <div class="font-bold uppercase">${t.id} <span class="text-xs bg-slate-200 px-2 py-0.5 rounded ml-2">${t.classLevel}</span></div>
+                                <div class="text-xs text-slate-500 mt-1">${t.area} | ${t.sessions.map(s => s.day.substring(0,3) + ' ' + s.timeLabel).join(', ')}</div>
+                            </div>
+                        </div>
+                        <button onclick="window.deleteItem('tuitions', ${index})" class="text-red-500 font-bold hover:bg-red-50 p-2 rounded">Delete</button>
+                    </div>`;
+                });
+                
+                html += `
+                <div class="bg-slate-200 p-6 rounded-xl border-2 border-black border-dashed mt-8">
+                    <h4 class="font-bold uppercase mb-4">Add New Tuition</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input id="nt-name" type="text" placeholder="Student Name" class="p-2 border-2 border-black rounded font-bold">
+                        <input id="nt-class" type="text" placeholder="Class / Level" class="p-2 border-2 border-black rounded">
+                        <input id="nt-area" type="text" placeholder="Area" class="p-2 border-2 border-black rounded">
+                        <select id="nt-color" class="p-2 border-2 border-black rounded font-bold">
+                            ${pastelTuitionColors.map(c => `<option value="${c.hex}">${c.name}</option>`).join('')}
+                        </select>
+                        <select id="nt-day" class="p-2 border-2 border-black rounded">
+                            ${daysOfWeek.map(d => `<option value="${d}">${d}</option>`).join('')}
+                        </select>
+                        ${generateTimeDropdownHTML('nt')}
+                    </div>
+                    <button onclick="window.addTuition()" class="mt-6 w-full bg-black text-white px-4 py-3 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest">Add Tuition</button>
+                </div>`;
+            }
+            else if (activeTab === 'buses') {
+                html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2">Bus Fleet</h3>`;
+                appData.buses.forEach((b, index) => {
+                    html += `<div class="bg-white p-4 rounded-xl border-2 border-black mb-4 flex justify-between items-center solid-shadow-sm hover-lift">
+                        <div>
+                            <div class="font-bold uppercase">${b.name} (${b.number}) <span class="text-xs ${b.trip==='Up'?'bg-emerald-100 text-emerald-800':'bg-rose-100 text-rose-800'} border border-black px-2 py-0.5 rounded ml-2">${b.trip}</span></div>
+                            <div class="text-xs text-slate-500 mt-1">Time: ${b.time} | Stop: ${b.stop}</div>
+                        </div>
+                        <button onclick="window.deleteItem('buses', ${index})" class="text-red-500 font-bold hover:bg-red-50 p-2 rounded">Delete</button>
+                    </div>`;
+                });
+                
+                html += `
+                <div class="bg-slate-200 p-6 rounded-xl border-2 border-black border-dashed mt-8">
+                    <h4 class="font-bold uppercase mb-4">Add New Bus</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input id="nb-name" type="text" placeholder="Bus Name (e.g. Hemonto)" class="p-2 border-2 border-black rounded font-bold">
+                        <input id="nb-number" type="text" placeholder="Bus Number" class="p-2 border-2 border-black rounded">
+                        ${generateTimeDropdownHTML('nb')}
+                        <input id="nb-stop" type="text" placeholder="Bus Stop" class="p-2 border-2 border-black rounded">
+                        <select id="nb-trip" class="p-2 border-2 border-black rounded col-span-1 md:col-span-2">
+                            <option value="Up">Up (To Campus)</option><option value="Down">Down (From Campus)</option>
+                        </select>
+                    </div>
+                    <button onclick="window.addBus()" class="mt-6 w-full bg-black text-white px-4 py-3 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest">Add Bus</button>
+                </div>`;
+            }
+            else if (activeTab === 'weekly') {
+                html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2 text-rose-600">This Week's Edits</h3>
+                <div class="mb-8 bg-rose-50 p-4 rounded-xl border-2 border-rose-200 solid-shadow-sm flex items-center justify-between">
+                    <label class="font-black text-sm uppercase tracking-wider text-rose-900">Current Week Start Date:</label>
+                    <input type="date" value="${appData.overrides.currentWeekStart}" class="p-2 border-2 border-black rounded font-bold" onchange="window.updateWeekStart(this.value)">
+                </div>
+                
+                <div class="mb-8"><h4 class="font-black uppercase mb-4 bg-black text-white px-4 py-1 inline-block rounded">1. Cancel Classes</h4>
+                <div class="flex flex-wrap gap-3">`;
+                appData.courses.forEach(c => {
+                    const isCancelled = appData.overrides.cancelledIds.includes(c.id);
+                    html += `<button onclick="window.toggleCancel('${c.id}')" class="px-4 py-2 text-sm font-black border-2 border-black rounded-lg solid-shadow-sm hover-lift ${isCancelled ? 'bg-red-500 text-white' : 'bg-white text-black'}">${c.code} ${isCancelled ? '❌' : '✅'}</button>`;
+                });
+                html += `</div></div>
+                <div class="mb-8 border-t-2 border-black pt-8"><h4 class="font-black uppercase mb-4 bg-emerald-600 text-white px-4 py-1 inline-block rounded">2. Extra Classes</h4>
+                    <div class="space-y-2 mb-6">`;
+                    appData.overrides.extras.forEach((ex, idx) => {
+                        html += `<div class="flex justify-between bg-emerald-50 border-2 border-emerald-200 p-2 rounded-lg"><span class="font-bold text-sm">➕ ${ex.courseCode} - ${ex.day} ${ex.timeLabel}</span><button onclick="window.deleteOverride('extras', ${idx})" class="text-red-500 font-bold">&times; Remove</button></div>`;
+                    });
+                html += `</div>
+                    <div class="bg-emerald-50 p-6 rounded-xl border-2 border-emerald-600 border-dashed">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <select id="nxt-course" class="p-2 border-2 border-black rounded font-bold">${appData.courses.map(c => `<option value="${c.id}|${c.code}|${c.owner}">${c.code} (${c.owner})</option>`).join('')}</select>
+                            <select id="nxt-day" class="p-2 border-2 border-black rounded">${daysOfWeek.map(d => `<option value="${d}">${d}</option>`).join('')}</select>
+                            ${generateTimeDropdownHTML('nxt')}
+                        </div>
+                        <button onclick="window.addExtraClass()" class="mt-4 w-full bg-emerald-500 text-white px-4 py-3 rounded-xl border-2 border-black font-black hover-lift">Add Extra Class</button>
+                    </div></div>`;
+            }
+            else if (activeTab === 'exams') {
+                html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2 text-amber-600">Exams (Date Based)</h3><div class="space-y-2 mb-8">`;
+                appData.overrides.exams.forEach((ex, idx) => {
+                    html += `<div class="flex justify-between bg-amber-50 border-2 border-amber-200 p-3 rounded-lg solid-shadow-sm"><div><div class="font-black text-sm text-amber-900 uppercase">⚠️ ${ex.courseCode}: ${ex.examName}</div><div class="text-xs font-bold text-amber-700">${ex.date} | ${ex.timeLabel} (${ex.owner})</div></div><button onclick="window.deleteOverride('exams', ${idx})" class="text-red-500 font-bold">Delete</button></div>`;
+                });
+                html += `</div><div class="bg-amber-100 p-6 rounded-xl border-2 border-black border-dashed mt-6">
+                    <h4 class="font-bold uppercase mb-4 text-amber-900">Schedule New Exam</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input id="nx-name" type="text" placeholder="Exam Name (e.g. Midterm 1)" class="p-2 border-2 border-black rounded font-bold">
+                        <select id="nx-course" class="p-2 border-2 border-black rounded font-bold">${appData.courses.map(c => `<option value="${c.id}|${c.code}|${c.owner}">${c.code} (${c.owner})</option>`).join('')}</select>
+                        <input id="nx-date" type="date" class="p-2 border-2 border-black rounded font-bold">
+                        ${generateTimeDropdownHTML('nx')}
+                    </div>
+                    <button onclick="window.addExam()" class="mt-6 w-full bg-amber-500 text-white px-4 py-3 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest">Schedule Exam</button>
+                </div>`;
+            }
+            else if (activeTab === 'personal') {
+                html += `<h3 class="text-xl font-black uppercase mb-6 border-b-2 border-black pb-2 text-indigo-600">Personal Scheduler (Date Based)</h3><div class="space-y-2 mb-8">`;
+                appData.personalEvents.forEach((pe, idx) => {
+                    html += `<div class="flex justify-between bg-indigo-50 border-2 border-indigo-200 p-3 rounded-lg solid-shadow-sm"><div><div class="font-black text-sm text-indigo-900 uppercase">📌 ${pe.planner}</div><div class="text-xs font-bold text-indigo-700">${pe.date} | ${pe.timeLabel} (${pe.category})</div></div><button onclick="window.deleteOverride('personalEvents', ${idx})" class="text-red-500 font-bold">Delete</button></div>`;
+                });
+                html += `</div><div class="bg-indigo-100 p-6 rounded-xl border-2 border-black border-dashed mt-6">
+                    <h4 class="font-bold uppercase mb-4 text-indigo-900">Add New Personal Event</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input id="np-date" type="date" class="p-2 border-2 border-black rounded font-bold">
+                        ${generateTimeDropdownHTML('np')}
+                        <select id="np-category" class="p-2 border-2 border-black rounded col-span-1 md:col-span-2">
+                            ${personalCategories.map(c => `<option value="${c.id}">${c.icon} ${c.id}</option>`).join('')}
+                        </select>
+                        <input id="np-planner" type="text" placeholder="Event Name / Planner Title" class="p-2 border-2 border-black rounded font-bold col-span-1 md:col-span-2">
+                        <textarea id="np-todo" placeholder="To-Do List (Optional)" class="p-2 border-2 border-black rounded col-span-1 md:col-span-2" rows="2"></textarea>
+                        <input id="np-prereq" type="text" placeholder="Prerequisites (Optional)" class="p-2 border-2 border-black rounded col-span-1 md:col-span-2">
+                        <input id="np-pickup" type="text" placeholder="Pickup Details (Optional)" class="p-2 border-2 border-black rounded">
+                        <input id="np-dropoff" type="text" placeholder="Drop off Details (Optional)" class="p-2 border-2 border-black rounded">
+                    </div>
+                    <button onclick="window.addPersonalEvent()" class="mt-6 w-full bg-indigo-500 text-white px-4 py-3 rounded-xl border-2 border-black font-black hover-lift uppercase tracking-widest">Add Event</button>
+                </div>`;
+            }
+
+            html += `</div>`;
+            content.innerHTML = html;
+        }
+
+        // --- Form Actions ---
+        window.deleteItem = (col, idx) => { appData[col].splice(idx, 1); saveDataToCloud(); };
+        window.deleteOverride = (type, idx) => { 
+            if(type === 'personalEvents') appData.personalEvents.splice(idx, 1);
+            else appData.overrides[type].splice(idx, 1); 
+            saveDataToCloud(); 
+        };
+
+        window.addCourse = () => {
+            const code = document.getElementById('nc-code').value;
+            if(!code) return alert("Code required");
+            appData.courses.push({
+                id: Date.now().toString(), code, name: document.getElementById('nc-name').value || "TBA",
+                room: document.getElementById('nc-room').value || "TBA", owner: document.getElementById('nc-owner').value,
+                color: document.getElementById('nc-color').value, sessions: [{ day: document.getElementById('nc-day').value, timeLabel: getFinalTimeValue('nc') }]
+            });
+            saveDataToCloud();
+        };
+
+        window.addTuition = () => {
+            const name = document.getElementById('nt-name').value;
+            if(!name) return alert("Name required");
+            appData.tuitions.push({
+                id: name, classLevel: document.getElementById('nt-class').value || "-", area: document.getElementById('nt-area').value || "-",
+                color: document.getElementById('nt-color').value, sessions: [{ day: document.getElementById('nt-day').value, timeLabel: getFinalTimeValue('nt') }]
+            });
+            saveDataToCloud();
+        };
+
+        window.addBus = () => {
+            const name = document.getElementById('nb-name').value;
+            if(!name) return alert("Name required");
+            appData.buses.push({
+                id: Date.now().toString(), name, number: document.getElementById('nb-number').value || "-",
+                time: getFinalTimeValue('nb'), stop: document.getElementById('nb-stop').value || "-", trip: document.getElementById('nb-trip').value
+            });
+            saveDataToCloud();
+        };
+
+        window.updateWeekStart = (val) => { appData.overrides.currentWeekStart = val; saveDataToCloud(); };
+        window.toggleCancel = (id) => { const idx = appData.overrides.cancelledIds.indexOf(id); if (idx > -1) appData.overrides.cancelledIds.splice(idx, 1); else appData.overrides.cancelledIds.push(id); saveDataToCloud(); };
+
+        window.addExtraClass = () => {
+            const val = document.getElementById('nxt-course').value; if(!val) return;
+            const [id, code, owner] = val.split('|');
+            appData.overrides.extras.push({ courseId: id, courseCode: code, owner, day: document.getElementById('nxt-day').value, timeLabel: getFinalTimeValue('nxt') });
+            saveDataToCloud();
+        };
+
+        window.addExam = () => {
+            const val = document.getElementById('nx-course').value; if(!val) return;
+            const date = document.getElementById('nx-date').value; if(!date) return alert("Date required");
+            const [id, code, owner] = val.split('|');
+            appData.overrides.exams.push({ examName: document.getElementById('nx-name').value || "Exam", courseId: id, courseCode: code, owner, date, timeLabel: getFinalTimeValue('nx') });
+            saveDataToCloud();
+        };
+
+        window.addPersonalEvent = () => {
+            const date = document.getElementById('np-date').value; if(!date) return alert("Date required");
+            appData.personalEvents.push({
+                date, timeLabel: getFinalTimeValue('np'), category: document.getElementById('np-category').value,
+                planner: document.getElementById('np-planner').value || "New Event", todo: document.getElementById('np-todo').value,
+                prereq: document.getElementById('np-prereq').value, pickup: document.getElementById('np-pickup').value, dropoff: document.getElementById('np-dropoff').value
+            });
+            saveDataToCloud();
+        };
+
+        window.exportToSheet = () => {
+            let csv = "Type,ID,Name/Code,Owner/Level,Area/Room,Day/Date,Time\n";
+            appData.courses.forEach(c => c.sessions.forEach(s => csv += `Course,${c.id},${c.code},${c.owner},${c.room},${s.day},${s.timeLabel}\n`));
+            appData.personalEvents.forEach(pe => csv += `Personal,${pe.category},${pe.planner},,,${pe.date},${pe.timeLabel}\n`);
+            const a = document.createElement('a'); a.href = window.URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = `Ultimate_Schedule.csv`; a.click();
+        };
+
+        window.addEventListener('resize', () => renderApp());
+        renderApp();
+    </script>
+</body>
+</html>
