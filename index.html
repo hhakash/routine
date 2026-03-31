@@ -130,24 +130,26 @@
         </button>
     </div>
 
-    <!-- Mobile Jump Nav (Horizontal Scroll) -->
-    <div id="mobile-jump-nav" class="flex md:hidden overflow-x-auto gap-3 py-2 mb-6 hide-scrollbar w-full max-w-[1600px] mx-auto px-4 snap-x">
-        <button onclick="document.getElementById('capture-area').scrollIntoView({behavior: 'smooth', block: 'start'})" class="snap-start flex-shrink-0 bg-white border-2 border-black px-5 py-2.5 rounded-xl text-[10px] font-black solid-shadow-sm uppercase tracking-widest">📅 Routine</button>
-        <button id="jump-exams" onclick="document.getElementById('upcoming-radar-section').scrollIntoView({block: 'start', behavior: 'smooth'})" class="snap-start flex-shrink-0 bg-amber-50 border-2 border-amber-300 text-amber-900 px-5 py-2.5 rounded-xl text-[10px] font-black solid-shadow-sm uppercase tracking-widest">📝 Exams & Events</button>
-        <button id="jump-buses" onclick="document.getElementById('bus-fleet-section').scrollIntoView({block: 'start', behavior: 'smooth'})" class="snap-start flex-shrink-0 bg-emerald-50 border-2 border-emerald-300 text-emerald-900 px-5 py-2.5 rounded-xl text-[10px] font-black solid-shadow-sm uppercase tracking-widest">🚌 Buses</button>
-        <button id="jump-changes" onclick="document.getElementById('weekly-changes-section').scrollIntoView({block: 'start', behavior: 'smooth'})" class="snap-start flex-shrink-0 bg-rose-50 border-2 border-rose-300 text-rose-900 px-5 py-2.5 rounded-xl text-[10px] font-black solid-shadow-sm uppercase tracking-widest">🔄 Changes</button>
-        <button id="jump-tuitions" onclick="document.getElementById('tuitions-list-section').scrollIntoView({block: 'start', behavior: 'smooth'})" class="snap-start flex-shrink-0 bg-purple-50 border-2 border-purple-300 text-purple-900 px-5 py-2.5 rounded-xl text-[10px] font-black solid-shadow-sm uppercase tracking-widest">🎒 Tuitions</button>
+    <!-- Mobile Jump Nav (Icons Only) -->
+    <div id="mobile-jump-nav" class="flex md:hidden justify-center flex-wrap gap-4 py-2 mb-6 w-full max-w-[1600px] mx-auto px-4 no-print">
+        <button onclick="document.getElementById('capture-area').scrollIntoView({behavior: 'smooth', block: 'start'})" class="nav-btn bg-white" title="Routine">📅</button>
+        <button id="jump-exams" onclick="document.getElementById('upcoming-radar-section').scrollIntoView({block: 'start', behavior: 'smooth'})" class="nav-btn bg-amber-100 border-amber-600 text-amber-900" title="Exams">📝</button>
+        <button id="jump-events" onclick="document.getElementById('upcoming-radar-section').scrollIntoView({block: 'start', behavior: 'smooth'})" class="nav-btn bg-indigo-100 border-indigo-600 text-indigo-900" title="Personal Events">📌</button>
+        <button id="jump-buses" onclick="document.getElementById('bus-fleet-section').scrollIntoView({block: 'start', behavior: 'smooth'})" class="nav-btn bg-emerald-100 border-emerald-600 text-emerald-900" title="Buses">🚌</button>
+        <button id="jump-changes" onclick="document.getElementById('weekly-changes-section').scrollIntoView({block: 'start', behavior: 'smooth'})" class="nav-btn bg-rose-100 border-rose-600 text-rose-900" title="Changes">🔄</button>
+        <button id="jump-tuitions" onclick="document.getElementById('tuitions-list-section').scrollIntoView({block: 'start', behavior: 'smooth'})" class="nav-btn bg-purple-100 border-purple-600 text-purple-900" title="Tuitions">🎒</button>
     </div>
 
     <!-- Main Canvas -->
     <div id="capture-area" class="max-w-[1600px] mx-auto p-4 md:p-8 bg-white main-border rounded-[2rem] md:rounded-[3rem] solid-shadow mb-12 relative z-10">
-        
-        <button onclick="window.toggleZenMode()" id="zen-btn" class="absolute top-4 right-4 md:top-8 md:right-8 bg-slate-100 text-slate-500 px-3 md:px-4 py-1.5 md:py-2 rounded-full font-black text-[10px] md:text-xs uppercase tracking-widest transition-all border-2 border-transparent hover:border-indigo-300 flex items-center gap-1 z-20 no-print" title="Show only University Classes">
-            <span class="text-sm md:text-base">🧘‍♂️</span> Zen Mode
-        </button>
 
-        <div class="mb-8 text-center flex flex-col items-center mt-6 md:mt-0">
+        <!-- Header & Grand Filter -->
+        <div class="mb-8 text-center flex flex-col items-center mt-2 md:mt-0 relative">
             
+            <button onclick="window.toggleZenMode()" id="zen-btn" class="mb-4 md:mb-0 md:absolute md:top-0 md:right-0 bg-slate-100 text-slate-500 px-4 py-2 rounded-full font-black text-xs uppercase tracking-widest transition-all border-2 border-transparent hover:border-indigo-300 flex items-center justify-center gap-1 z-20 no-print" title="Show only University Classes">
+                <span class="text-sm md:text-base">🧘‍♂️</span> Zen Mode
+            </button>
+
             <div class="bg-rose-100 text-rose-900 border-2 border-black p-1.5 md:p-2 rounded-3xl md:rounded-full font-black text-xs md:text-sm mb-5 solid-shadow-sm uppercase tracking-widest flex flex-wrap justify-center items-center gap-2 cursor-pointer transition-all" onclick="window.clearGlobalFilter(event)" title="Click to clear filters">
                 <span id="filter-hha" class="text-blue-600 hover:bg-blue-200 px-4 py-1.5 rounded-full transition-all text-center" onclick="window.setGlobalFilter('Hha', event)">Hha (17th)</span> 
                 <span class="text-rose-400 text-lg mx-1 hover:scale-125 transition-transform text-center">✖</span> 
@@ -176,9 +178,10 @@
             <span>🏖️ Preparatory Leave (PL) Active! Regular classes are hidden.</span>
         </div>
 
-        <!-- Dynamic Day Filters - Desktop Only -->
-        <div class="mb-4 hidden md:flex flex-wrap justify-center gap-2" id="day-filter-container">
-            </div>
+        <!-- Dynamic Day Filters -->
+        <div class="mb-6 grid grid-cols-4 gap-2 md:flex md:flex-wrap md:justify-center" id="day-filter-container">
+            <!-- Injected by JS -->
+        </div>
 
         <!-- Legend (Course Filters) - Desktop Only -->
         <div class="mb-10 bg-slate-50 p-4 md:p-6 rounded-[2rem] border-2 border-slate-200 border-dashed hidden md:block">
@@ -659,12 +662,12 @@
             const sub = document.getElementById('planner-subtitle');
             
             if (window.isZenMode) {
-                zenBtn.className = "absolute top-4 right-4 md:top-8 md:right-8 bg-indigo-600 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-full font-black text-xs md:text-sm uppercase tracking-widest transition-all border-2 border-black solid-shadow-sm hover-lift flex items-center gap-2 z-20 no-print";
+                zenBtn.className = "mb-4 md:mb-0 md:absolute md:top-0 md:right-0 bg-indigo-600 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-full font-black text-xs md:text-sm uppercase tracking-widest transition-all border-2 border-black solid-shadow-sm hover-lift flex items-center justify-center gap-2 z-20 no-print";
                 zenBtn.innerHTML = `<span class="text-base md:text-lg">📋</span> Detailed View`;
                 sub.innerText = "University Classes Only (Zen Mode)";
                 sub.classList.add('text-indigo-500');
             } else {
-                zenBtn.className = "absolute top-4 right-4 md:top-8 md:right-8 bg-slate-100 text-slate-500 px-3 md:px-4 py-1.5 md:py-2 rounded-full font-black text-[10px] md:text-xs uppercase tracking-widest transition-all border-2 border-transparent hover:border-indigo-300 flex items-center gap-1 z-20 no-print";
+                zenBtn.className = "mb-4 md:mb-0 md:absolute md:top-0 md:right-0 bg-slate-100 text-slate-500 px-4 py-2 rounded-full font-black text-xs uppercase tracking-widest transition-all border-2 border-transparent hover:border-indigo-300 flex items-center justify-center gap-1 z-20 no-print";
                 zenBtn.innerHTML = `<span class="text-sm md:text-base">🧘‍♂️</span> Zen Mode`;
                 sub.innerText = "Schedule • Exams • Events • Love Time";
                 sub.classList.remove('text-indigo-500');
@@ -692,11 +695,13 @@
 
         function renderDayFilters() {
             const container = document.getElementById('day-filter-container');
-            container.innerHTML = `<button onclick="window.setDayFilter('All'); document.getElementById('capture-area').scrollIntoView()" class="filter-pill px-4 py-1.5 bg-white border-2 border-slate-300 rounded-xl text-xs font-bold ${window.globalDayFilter === 'All' ? 'active' : ''}">All Days</button>`;
+            let html = '';
             daysOfWeek.forEach(day => {
-                const short = day.substring(0,3);
-                container.innerHTML += `<button onclick="window.setDayFilter('${day}'); window.jumpToDay('${day}')" class="filter-pill px-4 py-1.5 bg-white border-2 border-slate-300 rounded-xl text-xs font-bold ${window.globalDayFilter === day ? 'active' : ''}">${short}</button>`;
+                const short = day.substring(0,3).toUpperCase();
+                html += `<button onclick="window.setDayFilter('${day}'); window.jumpToDay('${day}')" class="filter-pill px-2 md:px-4 py-2 md:py-1.5 bg-white border-2 border-slate-300 rounded-xl text-[10px] md:text-xs font-black ${window.globalDayFilter === day ? 'active border-black' : ''}">${short}</button>`;
             });
+            html += `<button onclick="window.setDayFilter('All'); document.getElementById('capture-area').scrollIntoView()" class="filter-pill px-2 md:px-4 py-2 md:py-1.5 bg-black text-white border-2 border-black rounded-xl text-[10px] md:text-xs font-black ${window.globalDayFilter === 'All' ? 'active border-white' : ''}">ALL</button>`;
+            container.innerHTML = html;
         }
 
         function renderLegend() {
