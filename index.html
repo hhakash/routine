@@ -44,7 +44,7 @@
         }
         @media (min-width: 768px) { .sq-btn { width: 5.5rem; height: 5.5rem; font-size: 0.75rem; border-radius: 1.25rem; } }
 
-        /* Fixed Side Navs - Made smaller and closer to edge */
+        /* Fixed Side Navs - Hidden on Mobile */
         .fixed-nav-right { position: fixed; right: 0.25rem; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 0.5rem; z-index: 40; }
         .fixed-nav-left { position: fixed; left: 0.25rem; top: 50%; transform: translateY(-50%); display: flex; flex-direction: column; gap: 0.4rem; z-index: 40; }
         
@@ -88,8 +88,8 @@
 </head>
 <body class="p-2 md:p-8">
 
-    <!-- Fixed Navigation Icons (Left - Days) -->
-    <div class="fixed-nav-left no-print">
+    <!-- Fixed Navigation Icons (Left - Days) - Desktop Only -->
+    <div class="fixed-nav-left no-print hidden md:flex" id="nav-days">
         <div onclick="window.jumpToDay('Sunday')" class="nav-btn-day" title="Sunday">S</div>
         <div onclick="window.jumpToDay('Monday')" class="nav-btn-day" title="Monday">M</div>
         <div onclick="window.jumpToDay('Tuesday')" class="nav-btn-day" title="Tuesday">T</div>
@@ -100,11 +100,11 @@
         <div onclick="window.jumpToDay('All')" class="nav-btn-day bg-black text-white" title="All Days">All</div>
     </div>
 
-    <!-- Fixed Navigation Icons (Right - Sections) -->
-    <div class="fixed-nav-right no-print">
+    <!-- Fixed Navigation Icons (Right - Sections) - Desktop Only -->
+    <div class="fixed-nav-right no-print hidden md:flex" id="nav-sections">
         <div onclick="document.getElementById('capture-area').scrollIntoView()" class="nav-btn" title="Main Routine">📅</div>
-        <div onclick="document.getElementById('upcoming-exams-list').scrollIntoView({block: 'center'})" class="nav-btn bg-amber-100 border-amber-600 text-amber-900" title="Exams">📝</div>
-        <div onclick="document.getElementById('upcoming-personal-list').scrollIntoView({block: 'center'})" class="nav-btn bg-indigo-100 border-indigo-600 text-indigo-900" title="Personal Events">📌</div>
+        <div onclick="document.getElementById('upcoming-radar-section').scrollIntoView({block: 'center'})" class="nav-btn bg-amber-100 border-amber-600 text-amber-900" title="Exams">📝</div>
+        <div onclick="document.getElementById('upcoming-radar-section').scrollIntoView({block: 'center'})" class="nav-btn bg-indigo-100 border-indigo-600 text-indigo-900" title="Personal Events">📌</div>
         <div onclick="document.getElementById('bus-fleet-section').scrollIntoView({block: 'start'})" class="nav-btn bg-emerald-100 border-emerald-600 text-emerald-900" title="Bus Fleet">🚌</div>
         <div onclick="document.getElementById('weekly-changes-section').scrollIntoView({block: 'start'})" class="nav-btn bg-rose-100 border-rose-600 text-rose-900" title="Weekly Changes">🔄</div>
         <div onclick="document.getElementById('tuitions-list-section').scrollIntoView({block: 'start'})" class="nav-btn bg-purple-100 border-purple-600 text-purple-900" title="Tuitions">🎒</div>
@@ -130,11 +130,23 @@
         </button>
     </div>
 
+    <!-- Mobile Jump Nav (Horizontal Scroll) -->
+    <div id="mobile-jump-nav" class="flex md:hidden overflow-x-auto gap-3 py-2 mb-6 hide-scrollbar w-full max-w-[1600px] mx-auto px-4 snap-x">
+        <button onclick="document.getElementById('capture-area').scrollIntoView({behavior: 'smooth', block: 'start'})" class="snap-start flex-shrink-0 bg-white border-2 border-black px-5 py-2.5 rounded-xl text-[10px] font-black solid-shadow-sm uppercase tracking-widest">📅 Routine</button>
+        <button id="jump-exams" onclick="document.getElementById('upcoming-radar-section').scrollIntoView({block: 'start', behavior: 'smooth'})" class="snap-start flex-shrink-0 bg-amber-50 border-2 border-amber-300 text-amber-900 px-5 py-2.5 rounded-xl text-[10px] font-black solid-shadow-sm uppercase tracking-widest">📝 Exams & Events</button>
+        <button id="jump-buses" onclick="document.getElementById('bus-fleet-section').scrollIntoView({block: 'start', behavior: 'smooth'})" class="snap-start flex-shrink-0 bg-emerald-50 border-2 border-emerald-300 text-emerald-900 px-5 py-2.5 rounded-xl text-[10px] font-black solid-shadow-sm uppercase tracking-widest">🚌 Buses</button>
+        <button id="jump-changes" onclick="document.getElementById('weekly-changes-section').scrollIntoView({block: 'start', behavior: 'smooth'})" class="snap-start flex-shrink-0 bg-rose-50 border-2 border-rose-300 text-rose-900 px-5 py-2.5 rounded-xl text-[10px] font-black solid-shadow-sm uppercase tracking-widest">🔄 Changes</button>
+        <button id="jump-tuitions" onclick="document.getElementById('tuitions-list-section').scrollIntoView({block: 'start', behavior: 'smooth'})" class="snap-start flex-shrink-0 bg-purple-50 border-2 border-purple-300 text-purple-900 px-5 py-2.5 rounded-xl text-[10px] font-black solid-shadow-sm uppercase tracking-widest">🎒 Tuitions</button>
+    </div>
+
     <!-- Main Canvas -->
     <div id="capture-area" class="max-w-[1600px] mx-auto p-4 md:p-8 bg-white main-border rounded-[2rem] md:rounded-[3rem] solid-shadow mb-12 relative z-10">
         
-        <!-- Header & Grand Filter -->
-        <div class="mb-8 text-center flex flex-col items-center">
+        <button onclick="window.toggleZenMode()" id="zen-btn" class="absolute top-4 right-4 md:top-8 md:right-8 bg-slate-100 text-slate-500 px-3 md:px-4 py-1.5 md:py-2 rounded-full font-black text-[10px] md:text-xs uppercase tracking-widest transition-all border-2 border-transparent hover:border-indigo-300 flex items-center gap-1 z-20 no-print" title="Show only University Classes">
+            <span class="text-sm md:text-base">🧘‍♂️</span> Zen Mode
+        </button>
+
+        <div class="mb-8 text-center flex flex-col items-center mt-6 md:mt-0">
             
             <div class="bg-rose-100 text-rose-900 border-2 border-black p-1.5 md:p-2 rounded-3xl md:rounded-full font-black text-xs md:text-sm mb-5 solid-shadow-sm uppercase tracking-widest flex flex-wrap justify-center items-center gap-2 cursor-pointer transition-all" onclick="window.clearGlobalFilter(event)" title="Click to clear filters">
                 <span id="filter-hha" class="text-blue-600 hover:bg-blue-200 px-4 py-1.5 rounded-full transition-all text-center" onclick="window.setGlobalFilter('Hha', event)">Hha (17th)</span> 
@@ -147,12 +159,11 @@
                 <span class="text-rose-500 animate-pulse text-6xl md:text-7xl drop-shadow-sm">❤</span>
                 <span>Planner</span>
             </h1>
-            <p class="text-[10px] md:text-xs font-extrabold text-slate-500 uppercase tracking-[0.4em] mt-4 md:mt-2 border-b-2 border-slate-200 pb-4 inline-block text-center">
+            <p id="planner-subtitle" class="text-[10px] md:text-xs font-extrabold text-slate-500 uppercase tracking-[0.4em] mt-4 md:mt-2 border-b-2 border-slate-200 pb-4 inline-block text-center transition-all">
                 Schedule • Exams • Events • Love Time
             </p>
         </div>
 
-        <!-- Notification Banner for Week Start -->
         <div class="mb-4 bg-slate-50 border-2 border-black text-slate-900 p-3 md:p-4 rounded-xl font-bold flex flex-col md:flex-row justify-between items-center text-xs md:text-sm uppercase tracking-wider solid-shadow-sm gap-4">
             <div class="flex items-center gap-2 flex-wrap justify-center">
                 <span>📅</span> Viewing Week Of: 
@@ -161,45 +172,37 @@
             <div class="text-[9px] md:text-[10px] opacity-70 text-center md:text-right">Exams/Events for this week sync below.</div>
         </div>
 
-        <!-- PL Banner -->
         <div id="pl-banner" class="hidden mb-6 bg-purple-100 border-2 border-purple-500 text-purple-900 p-3 rounded-xl font-bold flex justify-center items-center text-xs uppercase tracking-wider solid-shadow-sm text-center">
             <span>🏖️ Preparatory Leave (PL) Active! Regular classes are hidden.</span>
         </div>
 
-        <!-- Dynamic Day Filters -->
-        <div class="mb-4 flex flex-wrap justify-center gap-2" id="day-filter-container">
-            <!-- Injected by JS -->
-        </div>
+        <!-- Dynamic Day Filters - Desktop Only -->
+        <div class="mb-4 hidden md:flex flex-wrap justify-center gap-2" id="day-filter-container">
+            </div>
 
-        <!-- Legend (Course Filters) -->
-        <div class="mb-10 bg-slate-50 p-4 md:p-6 rounded-[2rem] border-2 border-slate-200 border-dashed">
+        <!-- Legend (Course Filters) - Desktop Only -->
+        <div class="mb-10 bg-slate-50 p-4 md:p-6 rounded-[2rem] border-2 border-slate-200 border-dashed hidden md:block">
             <p class="text-[9px] uppercase font-black text-center text-slate-400 mb-3 tracking-widest">Click to filter by specific class/event</p>
             <div id="legend-container" class="flex flex-wrap justify-center gap-2 md:gap-4">
-                <!-- Generated dynamically -->
-            </div>
+                </div>
         </div>
         
-        <!-- Grid -->
         <div class="schedule-grid" id="grid-container">
-            <!-- Generated dynamically -->
-        </div>
+            </div>
 
     </div>
 
-    <!-- UPCOMING VIEWS (Exams & Events) -->
-    <div class="max-w-[1600px] mx-auto bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] main-border solid-shadow mb-12 relative z-10">
+    <div id="upcoming-radar-section" class="max-w-[1600px] mx-auto bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] main-border solid-shadow mb-12 relative z-10 no-print">
         <h2 class="text-2xl md:text-3xl font-black uppercase mb-6 border-b-4 border-black pb-2 flex items-center gap-3">
             <span>🚀</span> Upcoming Radar
         </h2>
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10">
-            <!-- Upcoming Exams -->
             <div>
                 <h3 class="text-lg md:text-xl font-black uppercase mb-4 text-amber-600 bg-amber-50 inline-block px-4 py-1 rounded-lg border-2 border-amber-200">⚠️ Exams</h3>
                 <div id="upcoming-exams-list" class="space-y-4"></div>
             </div>
             
-            <!-- Personal Events -->
             <div>
                 <h3 class="text-lg md:text-xl font-black uppercase mb-4 text-indigo-600 bg-indigo-50 inline-block px-4 py-1 rounded-lg border-2 border-indigo-200">📌 Personal Events</h3>
                 <div id="upcoming-personal-list" class="space-y-4"></div>
@@ -207,20 +210,17 @@
         </div>
     </div>
 
-    <!-- BUS FLEET DIRECTORY -->
-    <div id="bus-fleet-section" class="max-w-[1600px] mx-auto bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] main-border solid-shadow mb-12 relative z-10">
+    <div id="bus-fleet-section" class="max-w-[1600px] mx-auto bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] main-border solid-shadow mb-12 relative z-10 no-print">
         <h2 class="text-2xl md:text-3xl font-black uppercase mb-6 border-b-4 border-black pb-2 flex items-center gap-3">
             <span>🚌</span> Bus Fleet Directory
         </h2>
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10">
-            <!-- Up Trips -->
             <div>
                 <h3 class="text-lg md:text-xl font-black uppercase mb-4 text-emerald-600 bg-emerald-50 inline-block px-4 py-1 rounded-lg border-2 border-emerald-200">🔼 Up (To Campus)</h3>
                 <div id="bus-up-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
             </div>
             
-            <!-- Down Trips -->
             <div>
                 <h3 class="text-lg md:text-xl font-black uppercase mb-4 text-rose-600 bg-rose-50 inline-block px-4 py-1 rounded-lg border-2 border-rose-200">🔽 Down (From Campus)</h3>
                 <div id="bus-down-list" class="grid grid-cols-1 sm:grid-cols-2 gap-4"></div>
@@ -228,8 +228,7 @@
         </div>
     </div>
 
-    <!-- WEEKLY OVERRIDES SECTION -->
-    <div id="weekly-changes-section" class="max-w-[1600px] mx-auto bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] main-border solid-shadow mb-12 relative z-10">
+    <div id="weekly-changes-section" class="max-w-[1600px] mx-auto bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] main-border solid-shadow mb-12 relative z-10 no-print">
         <h2 class="text-2xl md:text-3xl font-black uppercase mb-6 border-b-4 border-black pb-2 flex items-center gap-3">
             <span>🔄</span> Weekly Overrides
         </h2>
@@ -238,13 +237,11 @@
         </div>
         
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-10">
-            <!-- Extra Classes -->
             <div>
                 <h3 class="text-lg md:text-xl font-black uppercase mb-4 text-emerald-600 bg-emerald-50 inline-block px-4 py-1 rounded-lg border-2 border-emerald-200">➕ Extra Classes</h3>
                 <div id="main-extras-list" class="space-y-4"></div>
             </div>
             
-            <!-- Cancelled Classes -->
             <div>
                 <h3 class="text-lg md:text-xl font-black uppercase mb-4 text-red-600 bg-red-50 inline-block px-4 py-1 rounded-lg border-2 border-red-200">❌ Cancelled Classes</h3>
                 <div id="main-cancelled-list" class="space-y-4"></div>
@@ -252,21 +249,17 @@
         </div>
     </div>
 
-    <!-- TUITIONS LIST SECTION -->
-    <div id="tuitions-list-section" class="max-w-[1600px] mx-auto bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] main-border solid-shadow mb-20 relative z-10">
+    <div id="tuitions-list-section" class="max-w-[1600px] mx-auto bg-white p-6 md:p-10 rounded-[2rem] md:rounded-[3rem] main-border solid-shadow mb-20 relative z-10 no-print">
         <h2 class="text-2xl md:text-3xl font-black uppercase mb-6 border-b-4 border-black pb-2 flex items-center gap-3">
             <span>🎒</span> Tuitions Master List
         </h2>
         <div id="main-tuitions-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Generated dynamically -->
-        </div>
+            </div>
     </div>
 
-    <!-- DATABASE MODAL -->
     <div id="db-modal" class="fixed inset-0 bg-black/60 hidden z-50 flex items-center justify-center p-2 md:p-6 no-print">
         <div class="bg-white w-full max-w-7xl h-[95vh] rounded-[2rem] border-4 border-black solid-shadow flex flex-col overflow-hidden relative">
             
-            <!-- Modal Header -->
             <div class="bg-black text-white p-4 md:p-6 flex justify-between items-center flex-shrink-0">
                 <div>
                     <h2 class="text-xl md:text-2xl font-black uppercase tracking-wider flex items-center gap-2"><span>💾</span> Master Database</h2>
@@ -275,9 +268,7 @@
                 <button onclick="window.closeDatabase()" class="text-white hover:text-rose-400 font-bold text-4xl leading-none">&times;</button>
             </div>
 
-            <!-- Modal Body -->
             <div class="flex flex-col md:flex-row flex-1 overflow-hidden">
-                <!-- Sidebar -->
                 <div class="w-full md:w-64 bg-slate-100 border-b-2 md:border-b-0 md:border-r-2 border-black p-4 flex md:flex-col gap-2 overflow-x-auto md:overflow-y-auto flex-shrink-0 hide-scrollbar">
                     <button onclick="window.switchTab('courses')" id="tab-courses" class="tab-btn active text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">📚 Uni Courses</button>
                     <button onclick="window.switchTab('tuitions')" id="tab-tuitions" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">🎒 Tuitions</button>
@@ -285,14 +276,11 @@
                     <button onclick="window.switchTab('weekly')" id="tab-weekly" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">📅 Week Overrides</button>
                     <button onclick="window.switchTab('exams')" id="tab-exams" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">📝 Exams & PL</button>
                     <button onclick="window.switchTab('personal')" id="tab-personal" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap">📌 Personal</button>
-                    <!-- SPREADSHEET EDITOR TAB -->
                     <button onclick="window.switchTab('raw')" id="tab-raw" class="tab-btn text-left px-4 py-3 rounded-xl font-bold border-2 border-transparent hover:border-black transition-all whitespace-nowrap md:mt-auto bg-purple-100 text-purple-900 border-purple-300">🛠️ Spreadsheet</button>
                 </div>
 
-                <!-- Content Area -->
                 <div class="flex-1 p-4 md:p-8 overflow-y-auto bg-slate-50" id="db-content">
-                    <!-- Dynamic form content goes here -->
-                </div>
+                    </div>
             </div>
         </div>
     </div>
@@ -324,13 +312,23 @@
         // Global State & Filters
         window.globalOwnerFilter = 'All'; 
         window.globalDayFilter = 'All'; 
-        window.globalCourseFilter = 'All'; // Stores course code or tuition ID
+        window.globalCourseFilter = 'All'; 
+        window.isZenMode = window.innerWidth < 768; // Default Zen on Mobile
 
         let appData = {
             courses: [], tuitions: [], buses: [],
             overrides: { currentWeekStart: new Date().toISOString().split('T')[0], exams: [], extras: [], cancelledSessions: [], plStart: "", plEnd: "" },
             personalEvents: []
         };
+
+        // Resize bug fix: ONLY re-render on actual width change (prevents URL bar snapping)
+        let lastInnerWidth = window.innerWidth;
+        window.addEventListener('resize', () => {
+            if (window.innerWidth !== lastInnerWidth) {
+                lastInnerWidth = window.innerWidth;
+                renderApp();
+            }
+        });
 
         // --- LOCAL STORAGE: Fast Loading ---
         const savedLocalData = localStorage.getItem('hhaPpitaUltimateData');
@@ -454,7 +452,12 @@
             });
         };
 
-        // --- Filters Logic ---
+        // --- Filters & Zen Mode ---
+        window.toggleZenMode = () => {
+            window.isZenMode = !window.isZenMode;
+            renderApp();
+        };
+
         window.setGlobalFilter = (owner, event) => {
             event.stopPropagation();
             window.globalOwnerFilter = owner;
@@ -558,23 +561,24 @@
                     if(!isDateInPL(weekDates[s.day]) && !isClassCancelled(c.id, s.day, s.timeLabel)) addIfActive(s.timeLabel); 
                 });
             });
-            appData.tuitions.forEach(t => {
-                t.sessions.forEach(s => addIfActive(s.timeLabel));
-            });
-            appData.overrides.extras.forEach(ex => addIfActive(ex.timeLabel));
-            appData.overrides.exams.forEach(ex => {
-                if(Object.values(weekDates).includes(ex.date)) addIfActive(ex.timeLabel);
-            });
-            appData.personalEvents.forEach(pe => {
-                if(Object.values(weekDates).includes(pe.date)) addIfActive(pe.timeLabel);
-            });
+            
+            if (!window.isZenMode) {
+                appData.tuitions.forEach(t => t.sessions.forEach(s => addIfActive(s.timeLabel)));
+                appData.overrides.extras.forEach(ex => addIfActive(ex.timeLabel));
+                appData.overrides.exams.forEach(ex => { if(Object.values(weekDates).includes(ex.date)) addIfActive(ex.timeLabel); });
+                appData.personalEvents.forEach(pe => { if(Object.values(weekDates).includes(pe.date)) addIfActive(pe.timeLabel); });
+            }
 
             let sortedTimes = Array.from(timesSet).sort((a,b) => parseTimeToMinutes(a) - parseTimeToMinutes(b));
 
-            let blocks = [{ label: "Arrival Bus", special: "bus_up" }];
+            let blocks = [];
+            if (!window.isZenMode) blocks.push({ label: "Arrival Bus", special: "bus_up" });
             sortedTimes.forEach(t => blocks.push({ label: t, special: false }));
-            blocks.push({ label: "Love Time", special: "love" });
-            blocks.push({ label: "Return Bus", special: "bus_down" });
+            
+            if (!window.isZenMode) {
+                blocks.push({ label: "Love Time", special: "love" });
+                blocks.push({ label: "Return Bus", special: "bus_down" });
+            }
             
             return blocks;
         }
@@ -599,23 +603,25 @@
                 });
             });
 
-            appData.tuitions.forEach(t => {
-                if (ownerFilter !== 'All' && t.owner !== 'Both' && t.owner !== ownerFilter) return;
-                if (window.globalCourseFilter !== 'All' && t.id !== window.globalCourseFilter) return;
-                t.sessions.forEach(s => { if (s.day === day) checkAndSet(s.timeLabel); });
-            });
+            if (!window.isZenMode) {
+                appData.tuitions.forEach(t => {
+                    if (ownerFilter !== 'All' && t.owner !== 'Both' && t.owner !== ownerFilter) return;
+                    if (window.globalCourseFilter !== 'All' && t.id !== window.globalCourseFilter) return;
+                    t.sessions.forEach(s => { if (s.day === day) checkAndSet(s.timeLabel); });
+                });
 
-            appData.overrides.extras.forEach(ex => {
-                if (ownerFilter !== 'All' && ex.owner !== ownerFilter) return;
-                if (window.globalCourseFilter !== 'All' && ex.courseCode !== window.globalCourseFilter) return;
-                if (ex.day === day) checkAndSet(ex.timeLabel);
-            });
+                appData.overrides.extras.forEach(ex => {
+                    if (ownerFilter !== 'All' && ex.owner !== ownerFilter) return;
+                    if (window.globalCourseFilter !== 'All' && ex.courseCode !== window.globalCourseFilter) return;
+                    if (ex.day === day) checkAndSet(ex.timeLabel);
+                });
 
-            appData.overrides.exams.forEach(ex => {
-                if (ownerFilter !== 'All' && ex.owner !== ownerFilter) return;
-                if (window.globalCourseFilter !== 'All' && ex.courseCode !== window.globalCourseFilter) return;
-                if (ex.date === weekDates[day]) checkAndSet(ex.timeLabel);
-            });
+                appData.overrides.exams.forEach(ex => {
+                    if (ownerFilter !== 'All' && ex.owner !== ownerFilter) return;
+                    if (window.globalCourseFilter !== 'All' && ex.courseCode !== window.globalCourseFilter) return;
+                    if (ex.date === weekDates[day]) checkAndSet(ex.timeLabel);
+                });
+            }
 
             return { earliest, latest };
         }
@@ -644,15 +650,53 @@
             const weekHasPL = Object.values(weekDates).some(dateStr => isDateInPL(dateStr));
             const plBanner = document.getElementById('pl-banner');
             if (plBanner) {
-                if (weekHasPL) plBanner.classList.remove('hidden');
+                if (weekHasPL && !window.isZenMode) plBanner.classList.remove('hidden');
                 else plBanner.classList.add('hidden');
             }
 
+            // Zen Mode UI Updates
+            const zenBtn = document.getElementById('zen-btn');
+            const sub = document.getElementById('planner-subtitle');
+            
+            if (window.isZenMode) {
+                zenBtn.className = "absolute top-4 right-4 md:top-8 md:right-8 bg-indigo-600 text-white px-4 md:px-5 py-2 md:py-2.5 rounded-full font-black text-xs md:text-sm uppercase tracking-widest transition-all border-2 border-black solid-shadow-sm hover-lift flex items-center gap-2 z-20 no-print";
+                zenBtn.innerHTML = `<span class="text-base md:text-lg">📋</span> Detailed View`;
+                sub.innerText = "University Classes Only (Zen Mode)";
+                sub.classList.add('text-indigo-500');
+            } else {
+                zenBtn.className = "absolute top-4 right-4 md:top-8 md:right-8 bg-slate-100 text-slate-500 px-3 md:px-4 py-1.5 md:py-2 rounded-full font-black text-[10px] md:text-xs uppercase tracking-widest transition-all border-2 border-transparent hover:border-indigo-300 flex items-center gap-1 z-20 no-print";
+                zenBtn.innerHTML = `<span class="text-sm md:text-base">🧘‍♂️</span> Zen Mode`;
+                sub.innerText = "Schedule • Exams • Events • Love Time";
+                sub.classList.remove('text-indigo-500');
+            }
+
+            // Hide/Show Extra Sections based on Zen Mode
+            ['upcoming-radar-section', 'bus-fleet-section', 'weekly-changes-section', 'tuitions-list-section', 'jump-exams', 'jump-events', 'jump-buses', 'jump-changes', 'jump-tuitions'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    if (window.isZenMode) el.classList.add('hidden');
+                    else el.classList.remove('hidden');
+                }
+            });
+
+            renderDayFilters();
             renderLegend();
             renderGrid(weekDates);
-            renderUpcomingView();
-            renderBusDirectory();
-            renderMainOverridesAndTuitions();
+            
+            if (!window.isZenMode) {
+                renderUpcomingView();
+                renderBusDirectory();
+                renderMainOverridesAndTuitions();
+            }
+        }
+
+        function renderDayFilters() {
+            const container = document.getElementById('day-filter-container');
+            container.innerHTML = `<button onclick="window.setDayFilter('All'); document.getElementById('capture-area').scrollIntoView()" class="filter-pill px-4 py-1.5 bg-white border-2 border-slate-300 rounded-xl text-xs font-bold ${window.globalDayFilter === 'All' ? 'active' : ''}">All Days</button>`;
+            daysOfWeek.forEach(day => {
+                const short = day.substring(0,3);
+                container.innerHTML += `<button onclick="window.setDayFilter('${day}'); window.jumpToDay('${day}')" class="filter-pill px-4 py-1.5 bg-white border-2 border-slate-300 rounded-xl text-xs font-bold ${window.globalDayFilter === day ? 'active' : ''}">${short}</button>`;
+            });
         }
 
         function renderLegend() {
@@ -674,20 +718,22 @@
                     </button>`;
             });
             
-            const seenTuitions = new Set();
-            appData.tuitions.forEach(t => {
-                if (window.globalOwnerFilter !== 'All' && t.owner !== 'Both' && t.owner !== window.globalOwnerFilter) return;
-                if (seenTuitions.has(t.id)) return;
-                seenTuitions.add(t.id);
-                
-                const icon = t.owner === 'Hha' ? '👨‍💻' : (t.owner === 'Ppita' ? '🌸' : '👥');
-                const isActive = window.globalCourseFilter === t.id;
-                container.innerHTML += `
-                    <button onclick="window.setCourseFilter('${t.id}')" class="filter-pill ${isActive ? 'active' : ''} flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border-2 border-black solid-shadow-sm hover:scale-105 transition-transform">
-                        <div class="w-4 h-4 rounded-md border border-black" style="background-color:${t.color}"></div>
-                        <span class="text-[10px] font-black uppercase tracking-tight text-left leading-tight">${t.id} <span class="opacity-40">(${icon})</span></span>
-                    </button>`;
-            });
+            if (!window.isZenMode) {
+                const seenTuitions = new Set();
+                appData.tuitions.forEach(t => {
+                    if (window.globalOwnerFilter !== 'All' && t.owner !== 'Both' && t.owner !== window.globalOwnerFilter) return;
+                    if (seenTuitions.has(t.id)) return;
+                    seenTuitions.add(t.id);
+                    
+                    const icon = t.owner === 'Hha' ? '👨‍💻' : (t.owner === 'Ppita' ? '🌸' : '👥');
+                    const isActive = window.globalCourseFilter === t.id;
+                    container.innerHTML += `
+                        <button onclick="window.setCourseFilter('${t.id}')" class="filter-pill ${isActive ? 'active' : ''} flex items-center gap-2 bg-white px-3 py-1.5 rounded-lg border-2 border-black solid-shadow-sm hover:scale-105 transition-transform">
+                            <div class="w-4 h-4 rounded-md border border-black" style="background-color:${t.color}"></div>
+                            <span class="text-[10px] font-black uppercase tracking-tight text-left leading-tight">${t.id} <span class="opacity-40">(${icon})</span></span>
+                        </button>`;
+                });
+            }
         }
 
         function getEventsForSlot(day, timeLabel, weekDates) {
@@ -704,6 +750,8 @@
                     }
                 });
             });
+
+            if (window.isZenMode) return events; // STOP HERE FOR ZEN MODE
 
             appData.tuitions.forEach(t => {
                 if (window.globalOwnerFilter !== 'All' && t.owner !== 'Both' && t.owner !== window.globalOwnerFilter) return;
@@ -732,6 +780,8 @@
         }
 
         function generateBusHtml(day, weekDates, isMobile, type) {
+            if (window.isZenMode) return `<div class="h-full w-full bg-slate-50 rounded-xl opacity-30 border-2 border-dashed border-slate-200 min-h-[60px]"></div>`;
+
             let boundsHha = getDayTimeBounds(day, weekDates, 'Hha');
             let boundsPpita = getDayTimeBounds(day, weekDates, 'Ppita');
             
@@ -786,7 +836,7 @@
         }
 
         function generateLoveTimeHtml(day, weekDates) {
-            if (window.globalOwnerFilter !== 'All') return `<div class="h-full w-full bg-slate-50 rounded-xl opacity-30 border-2 border-dashed border-slate-200 min-h-[100px]"></div>`;
+            if (window.globalOwnerFilter !== 'All' || window.isZenMode) return `<div class="h-full w-full bg-slate-50 rounded-xl opacity-30 border-2 border-dashed border-slate-200 min-h-[100px]"></div>`;
 
             let hhaHasClass = false;
             let ppitaHasClass = false;
@@ -930,7 +980,7 @@
                         }
                     });
                     dayHtml += `</div>`;
-                    if (hasEvents) grid.innerHTML += dayHtml;
+                    if (hasEvents || window.isZenMode) grid.innerHTML += dayHtml; 
                 });
             }
         }
@@ -1048,7 +1098,7 @@
                             <div class="font-black ${textMain} text-lg uppercase">${b.name} <span class="text-sm opacity-70">(${b.number})</span></div>
                             <div class="text-sm font-bold ${textSub} mt-1">🕒 ${b.time}</div>
                         </div>
-                        <span class="text-[9px] font-bold uppercase bg-white/60 px-2 py-1 rounded border border-black/20">${b.owner === 'Both' ? '👥 Both' : (b.owner === 'Hha' ? '👨‍💻 Hha' : '🌸 Ppita')}</span>
+                        <span class="text-[9px] font-bold uppercase bg-white/60 px-2 py-1 rounded border border-black/20">${b.owner === 'Both' ? '👥 Both' : (b.owner === 'Hha' ? '👨💻 Hha' : '🌸 Ppita')}</span>
                     </div>
                     <div class="text-xs font-bold text-slate-700">📍 Stop: ${b.stop}</div>
                 </div>`;
@@ -1642,7 +1692,6 @@
             const a = document.createElement('a'); a.href = window.URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = `Ultimate_Schedule.csv`; a.click();
         };
 
-        window.addEventListener('resize', () => renderApp());
         renderApp();
     </script>
 </body>
